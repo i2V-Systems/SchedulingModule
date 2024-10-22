@@ -14,7 +14,7 @@ using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 namespace SchedulingModule.services
 {
     [TransientService]
-    internal class SchedulerService
+    public class SchedulerService
     {
         private ISchedulesEntityBaseRepository<Schedules> schedulesRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;

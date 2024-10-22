@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
+using SchedulingModule.Managers;
 //using LoggingModule.Context;
 
 namespace SchedulingModule
@@ -19,7 +20,9 @@ namespace SchedulingModule
         public static void Start(IServiceProvider serviceProvider)
         {
             ServiceProvider = serviceProvider;
-            
+            ScheduleManager.Init();
+
+
         }
 
         public static T GetRequiredService<T>()

@@ -10,18 +10,13 @@ namespace SchedulingModule.Context
 {
     public class SchedulingModuleDbContext : DbContext
     {
-
-
         public SchedulingModuleDbContext(DbContextOptions<SchedulingModuleDbContext> options)
             : base(options)
         {
         }
-
-
-
         //public DbSet<ActionData> ActionData { get; set; }
 
-        public DbSet<Schedules> schedules { get; set; }
+        public DbSet<Schedules> Schedules { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
