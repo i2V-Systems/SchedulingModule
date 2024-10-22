@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\i2vprojects\\SchedulingModule\\SchedulingModule\\SchedulingModule.csproj": {}
+    "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\SchedulingModule.csproj": {}
   },
   "projects": {
-    "E:\\i2vprojects\\SchedulingModule\\SchedulingModule\\SchedulingModule.csproj": {
+    "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\CommonUtilityModule.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\i2vprojects\\SchedulingModule\\SchedulingModule\\SchedulingModule.csproj",
-        "projectName": "SchedulingModule",
-        "projectPath": "E:\\i2vprojects\\SchedulingModule\\SchedulingModule\\SchedulingModule.csproj",
+        "projectUniqueName": "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\CommonUtilityModule.csproj",
+        "projectName": "CommonUtilityModule",
+        "projectPath": "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\CommonUtilityModule.csproj",
         "packagesPath": "C:\\Users\\ishit\\.nuget\\packages\\",
-        "outputPath": "E:\\i2vprojects\\SchedulingModule\\SchedulingModule\\obj\\",
+        "outputPath": "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ishit\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,6 +39,137 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
+          "dependencies": {
+            "MQTTnet": {
+              "target": "Package",
+              "version": "[3.0.8, )"
+            },
+            "MassTransit": {
+              "target": "Package",
+              "version": "[8.2.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.2.0, )"
+            },
+            "MediatR.Contracts": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "MediatR.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[11.1.0, )"
+            },
+            "Microsoft.AspNetCore.SignalR": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
+            "Microsoft.FeatureManagement": {
+              "target": "Package",
+              "version": "[3.5.0, )"
+            },
+            "NetMQ": {
+              "target": "Package",
+              "version": "[4.0.1.13, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.8.1, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.0.2-dev-02044, )"
+            },
+            "TanvirArjel.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.200\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\SchedulingModule.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\SchedulingModule.csproj",
+        "projectName": "SchedulingModule",
+        "projectPath": "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\SchedulingModule.csproj",
+        "packagesPath": "C:\\Users\\ishit\\.nuget\\packages\\",
+        "outputPath": "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\ishit\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\CommonUtilityModule.csproj": {
+                "projectPath": "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\CommonUtilityModule.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.35, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[3.0.2-dev-02044, )"
+            },
+            "linq2db": {
+              "target": "Package",
+              "version": "[3.6.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
