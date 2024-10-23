@@ -22,4 +22,6 @@ namespace SchedulingModule.Models
             EntityIdGenerator.GenerateIdIfEmpty(this);
         }
     }
+
+
 }

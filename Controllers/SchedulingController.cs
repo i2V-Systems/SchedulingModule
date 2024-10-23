@@ -115,16 +115,32 @@ namespace SchedulingModule.Controllers
             {
                 return NotFound();
             }
-            var schedule = ScheduleManager.Schedules[id];
-            if (ScheduleManager.Delete(schedule))
+            try
             {
-                return Json(new { status = "success", message = "Schedule Deleted Successfully" });
-
+                var schedule = ScheduleManager.Schedules[id];
+                ScheduleManager.Delete(schedule);
+                return Ok(schedule);
+               
+                //return Json(new { status = "error", message = "Schedule Deleted Failed its Atached to a Configuration" });
             }
-            else
+            catch (DbUpdateConcurrencyException ex)
             {
-                return Json(new { status = "error", message = "Schedule Deleted Failed its Atached to a Configuration" });
+                Log.Error(ex, ex.Message);
+                //if (!VideoSourceManager.VideoSources.ContainsKey(id))
+                //{
+                //    return NotFound();
+                //}
+                //else
+                //{
+                throw;
+                //}
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, ex.Message);
+                return BadRequest(ex.Message);
+            }
+            //return Ok(schedule);
 
         }
 
