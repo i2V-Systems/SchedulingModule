@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "0zUPSFd1JR4CcKhBFLy6hH6MBtcj9uWKcOMgclDeTa/6dA2serDTCL4h1fmsG4RJw2Ao0n4HhMG/WLLJ/JvwRA==",
+  "dgSpecHash": "oHVuzFe/QHKpyOKsVweSbSlAQlQRbiGOpcM/S/FHS+cw5vcFPO6r3SGDgziey/phPm4OeC2PTyxiEAXCXUisgQ==",
   "success": true,
   "projectFilePath": "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\SchedulingModule.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ishit\\.nuget\\packages\\asyncio\\0.1.69\\asyncio.0.1.69.nupkg.sha512",
+    "C:\\Users\\ishit\\.nuget\\packages\\coravel\\6.0.0\\coravel.6.0.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\dapper\\2.1.35\\dapper.2.1.35.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\linq2db\\3.6.0\\linq2db.3.6.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\masstransit\\8.2.1\\masstransit.8.2.1.nupkg.sha512",
@@ -38,9 +39,8 @@
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.entityframeworkcore.analyzers\\7.0.11\\microsoft.entityframeworkcore.analyzers.7.0.11.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.caching.abstractions\\7.0.0\\microsoft.extensions.caching.abstractions.7.0.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.caching.memory\\7.0.0\\microsoft.extensions.caching.memory.7.0.0.nupkg.sha512",
-    "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.configuration\\2.1.1\\microsoft.extensions.configuration.2.1.1.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\7.0.0\\microsoft.extensions.configuration.abstractions.7.0.0.nupkg.sha512",
-    "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.configuration.binder\\2.1.10\\microsoft.extensions.configuration.binder.2.1.10.nupkg.sha512",
+    "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.configuration.binder\\6.0.0\\microsoft.extensions.configuration.binder.6.0.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\7.0.0\\microsoft.extensions.dependencyinjection.7.0.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\ishit\\.nuget\\packages\\microsoft.extensions.diagnostics.healthchecks\\7.0.1\\microsoft.extensions.diagnostics.healthchecks.7.0.1.nupkg.sha512",

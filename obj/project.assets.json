@@ -15,6 +15,26 @@
           }
         }
       },
+      "Coravel/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Caching.Memory": "3.1.0",
+          "Microsoft.Extensions.Configuration.Binder": "6.0.0",
+          "Microsoft.Extensions.DependencyInjection": "6.0.1",
+          "Microsoft.Extensions.Hosting.Abstractions": "3.1.0",
+          "Microsoft.Extensions.Logging.Abstractions": "3.1.0"
+        },
+        "compile": {
+          "lib/net6.0/Coravel.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Coravel.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Dapper/2.1.35": {
         "type": "package",
         "compile": {
@@ -585,22 +605,6 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
-      "Microsoft.Extensions.Configuration/2.1.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "2.1.1"
-        },
-        "compile": {
-          "lib/netstandard2.0/Microsoft.Extensions.Configuration.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Microsoft.Extensions.Configuration.dll": {
-            "related": ".xml"
-          }
-        }
-      },
       "Microsoft.Extensions.Configuration.Abstractions/7.0.0": {
         "type": "package",
         "dependencies": {
@@ -620,10 +624,10 @@
           "buildTransitive/net6.0/_._": {}
         }
       },
-      "Microsoft.Extensions.Configuration.Binder/2.1.10": {
+      "Microsoft.Extensions.Configuration.Binder/6.0.0": {
         "type": "package",
         "dependencies": {
-          "Microsoft.Extensions.Configuration": "2.1.1"
+          "Microsoft.Extensions.Configuration.Abstractions": "6.0.0"
         },
         "compile": {
           "lib/netstandard2.0/Microsoft.Extensions.Configuration.Binder.dll": {
@@ -2485,6 +2489,21 @@
         "lib/netstandard2.0/AsyncIO.pdb"
       ]
     },
+    "Coravel/6.0.0": {
+      "sha512": "U16V/IxGL2TcpU9sT1gUA3pqoVIlz+WthC4idn8OTPiEtLElTcmNF6sHt+gOx8DRU8TBgN5vjfL4AHetjacOWQ==",
+      "type": "package",
+      "path": "coravel/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "coravel.6.0.0.nupkg.sha512",
+        "coravel.nuspec",
+        "lib/net6.0/Coravel.dll",
+        "lib/net6.0/Coravel.xml",
+        "logo.png",
+        "readme.md"
+      ]
+    },
     "Dapper/2.1.35": {
       "sha512": "YKRwjVfrG7GYOovlGyQoMvr1/IJdn+7QzNXJxyMh0YfFF5yvDmTYaJOVYWsckreNjGsGSEtrMTpnzxTUq/tZQw==",
       "type": "package",
@@ -3011,19 +3030,6 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.Extensions.Configuration/2.1.1": {
-      "sha512": "LjVKO6P2y52c5ZhTLX/w8zc5H4Y3J/LJsgqTBj49TtFq/hAtVNue/WA0F6/7GMY90xhD7K0MDZ4qpOeWXbLvzg==",
-      "type": "package",
-      "path": "microsoft.extensions.configuration/2.1.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/netstandard2.0/Microsoft.Extensions.Configuration.dll",
-        "lib/netstandard2.0/Microsoft.Extensions.Configuration.xml",
-        "microsoft.extensions.configuration.2.1.1.nupkg.sha512",
-        "microsoft.extensions.configuration.nuspec"
-      ]
-    },
     "Microsoft.Extensions.Configuration.Abstractions/7.0.0": {
       "sha512": "f34u2eaqIjNO9YLHBz8rozVZ+TcFiFs0F3r7nUJd7FRkVSxk8u4OpoK226mi49MwexHOR2ibP9MFvRUaLilcQQ==",
       "type": "package",
@@ -3051,17 +3057,23 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.Extensions.Configuration.Binder/2.1.10": {
-      "sha512": "anSrDPFjcz6oBQjrul2vSHCg/wOZ2gJc1ZNzm03LtkA9S17x8xnkLaT599uuFnl6JSZJgQy4hoHVzt2+bIDc9w==",
+    "Microsoft.Extensions.Configuration.Binder/6.0.0": {
+      "sha512": "b3ErKzND8LIC7o08QAVlKfaEIYEvLJbtmVbFZVBRXeu9YkKfSSzLZfR1SUfQPBIy9mKLhEtJgGYImkcMNaKE0A==",
       "type": "package",
-      "path": "microsoft.extensions.configuration.binder/2.1.10",
+      "path": "microsoft.extensions.configuration.binder/6.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/Microsoft.Extensions.Configuration.Binder.dll",
+        "lib/net461/Microsoft.Extensions.Configuration.Binder.xml",
         "lib/netstandard2.0/Microsoft.Extensions.Configuration.Binder.dll",
         "lib/netstandard2.0/Microsoft.Extensions.Configuration.Binder.xml",
-        "microsoft.extensions.configuration.binder.2.1.10.nupkg.sha512",
-        "microsoft.extensions.configuration.binder.nuspec"
+        "microsoft.extensions.configuration.binder.6.0.0.nupkg.sha512",
+        "microsoft.extensions.configuration.binder.nuspec",
+        "useSharedDesignerContext.txt"
       ]
     },
     "Microsoft.Extensions.DependencyInjection/7.0.0": {
@@ -7212,6 +7224,7 @@
   "projectFileDependencyGroups": {
     "net7.0": [
       "CommonUtilityModule >= 1.0.0",
+      "Coravel >= 6.0.0",
       "Dapper >= 2.1.35",
       "Microsoft.EntityFrameworkCore >= 7.0.11",
       "Npgsql >= 7.0.0",
@@ -7262,6 +7275,10 @@
       "net7.0": {
         "targetAlias": "net7.0",
         "dependencies": {
+          "Coravel": {
+            "target": "Package",
+            "version": "[6.0.0, )"
+          },
           "Dapper": {
             "target": "Package",
             "version": "[2.1.35, )"

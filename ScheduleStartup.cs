@@ -9,7 +9,8 @@ namespace SchedulingModule
     {
         public static void configureServices(string connectionString)
         {
-            
+            //services.AddScheduler();
+
         }
 
      
