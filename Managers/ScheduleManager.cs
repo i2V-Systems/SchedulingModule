@@ -1,6 +1,8 @@
 ﻿
 using System.Collections.Concurrent;
 using System.Text;
+using Coravel.Scheduling.Schedule.Interfaces;
+using Polly.Registry;
 using SchedulingModule.Models;
 using SchedulingModule.services;
 using Serilog;
@@ -16,13 +18,21 @@ namespace SchedulingModule.Managers
         public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
 
         //private static HangFireScheduler hangFireSchedulerService { get; set; }
-        private static ScheduledTask scheduleTask;
+        private static ScheduledTaskService _scheduleTaskService;
+        private static IConfiguration _configuration;
+        private static IScheduler _scheduler;
+
 
         // initialise
-        public static void Init()
+        public static void InIt( 
+            IConfiguration configuration,
+             IScheduler scheduler
+        )
         {
+            _scheduler = scheduler;
+            _configuration = configuration;
             // get all schedules in Memory
-            scheduleTask = new ScheduledTask();
+            _scheduleTaskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
             var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
             var allSchedule = schedulerService.GetAllSchedules();
             foreach (var item in allSchedule)
@@ -55,7 +65,7 @@ namespace SchedulingModule.Managers
             var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
             schedulerService.Add(source);
             Schedules.TryAdd(source.Id, source);
-            scheduleTask.ExecuteAsync(source);
+            _scheduleTaskService.ExecuteAsync(source);
 
         }
 
@@ -66,11 +76,11 @@ namespace SchedulingModule.Managers
             Schedules previousValue;
             Schedules.TryGetValue(source.Id, out previousValue);
             Schedules.TryUpdate(source.Id, source, previousValue);
-            scheduleTask.UpdateAsync(source);
+            _scheduleTaskService.UpdateAsync(source);
 
         }
 
-        //public static List<ScheduledTask> getByIdwithTasks(int id)
+        //public static List<ScheduledTaskService> getByIdwithTasks(int id)
         //{
         //    var TaskschedulerService = ScheduleStartup.GetRequiredService<TaskScheduleService>();
         //    return TaskschedulerService.getByIdWithAttachedTasks(id);
@@ -79,10 +89,16 @@ namespace SchedulingModule.Managers
         public static bool Delete(Schedules source)
         {
             var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
-            scheduleTask.DeleteAsync(source);
+            _scheduleTaskService.DeleteAsync(source);
+
+            var coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
+            coravelService.UnScheduleJob(source);
+
             // get all video source from videosource manager
             //var videosources = VideoSourceManager.VideoSources;
             // get attach video source configuration
+
+            //(_scheduler as Scheduler).TryUnschedule("LogCleanerID");
 
 
 

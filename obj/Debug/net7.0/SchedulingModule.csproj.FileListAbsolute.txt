@@ -113,3 +113,5 @@ E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\scoped
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\SchedulingModule.csproj.CopyComplete
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\SchedulingModule.genruntimeconfig.cache
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\ref\SchedulingModule.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Coravel.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Polly.dll

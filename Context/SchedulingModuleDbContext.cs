@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulingModule.Models;
 
 namespace SchedulingModule.Context
@@ -20,6 +21,20 @@ namespace SchedulingModule.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Schedules>()
+                .Property(e => e.Type)
+                .HasConversion(
+                    new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleType>()
+                );
+
+            // Configure the SubType property to convert Enum_ScheduleSubType? to string in the database
+            modelBuilder.Entity<Schedules>()
+                .Property(e => e.SubType)
+                .HasConversion(
+                    new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleSubType>()
+                );
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 

@@ -10,5 +10,15 @@
           Custom
 
         }
+        public enum Enum_ScheduleSubType
+        {
+            Everyday,
+            Every,
+            Selecteddays,
+            Weekdays,
+            Weekenddays,
+            Custom
+
+        }
     }
 }

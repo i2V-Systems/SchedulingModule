@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Coravel.Scheduling.Schedule.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Http;
 using SchedulingModule.Abstract;
@@ -18,9 +19,11 @@ namespace SchedulingModule.services
     {
         private ISchedulesEntityBaseRepository<Schedules> schedulesRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+     
 
         public SchedulerService(SchedulingModuleDbContext scheduleDbContext, IHttpContextAccessor httpContextAccessor)
         {
+            
             _httpContextAccessor = httpContextAccessor;
             var httpContext = _httpContextAccessor.HttpContext;
           

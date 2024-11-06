@@ -163,7 +163,11 @@
             },
             "Npgsql": {
               "target": "Package",
-              "version": "[7.0.0, )"
+              "version": "[7.0.4, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[7.2.3, )"
             },
             "Serilog": {
               "target": "Package",

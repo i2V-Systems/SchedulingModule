@@ -1,24 +1,41 @@
-﻿using SchedulingModule.Models;
+﻿using Coravel.Scheduling.Schedule.Interfaces;
+using SchedulingModule.Models;
 
 namespace SchedulingModule.services
 {
 
-    public class ScheduledTask
+    public class ScheduledTaskService
     {
         private Schedules _schedule;
+        private static IScheduler _scheduler;
 
-
+        public ScheduledTaskService(
+           IScheduler scheduler
+        )
+        {
+            _scheduler = scheduler;
+        }
 
         public async Task ExecuteAsync(Schedules schedule)
         {
             _schedule = schedule;
-            var currentTime = DateTime.UtcNow;
+            var currentTime = DateTime.Now;
 
             if (currentTime >= _schedule.StartDateTime && currentTime <= _schedule.EndDateTime)
             {
                 // Execute the main task since it is within the scheduled range
-                var coravelScheduler = ScheduleStartup.GetRequiredService<CoravelScheduler>();
-                await coravelScheduler.PerformJobAction(schedule);
+                var coravelScheduler = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
+                if (schedule.RecurringStartTime == schedule.RecurringEndTime)
+                {
+                    await coravelScheduler.ScheduleJob(HandleScheduledJob, schedule,schedule.RecurringStartTime);
+                }
+                else
+                {
+                    await coravelScheduler.ScheduleJob(HandleScheduledJob, schedule, schedule.RecurringStartTime);
+                    await coravelScheduler.ScheduleJob(HandleScheduledJob, schedule, schedule.RecurringEndTime);
+
+                }
+               
             }
             else if (currentTime > _schedule.EndDateTime)
             {
@@ -26,6 +43,17 @@ namespace SchedulingModule.services
                 //remove job
                 Console.WriteLine("Task execution skipped as it is outside the allowed schedule range.");
             }
+        }
+
+        public void HandleScheduledJob()
+        {
+            //logic here and event callback for start and end,removejob, events 
+            //throw event 
+
+
+
+
+
         }
         public async Task UpdateAsync(Schedules schedule)
         {

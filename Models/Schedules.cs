@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MassTransit;
 using SchedulingModule.Interfaces;
+using static SchedulingModule.ScheduleTypeEnum;
 
 namespace SchedulingModule.Models
 {
@@ -15,9 +16,9 @@ namespace SchedulingModule.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public ScheduleTypeEnum.Enum_ScheduleType Type { get; set; }
+        public Enum_ScheduleType Type { get; set; }
         //[NotMapped]
-        public string? SubType { get; set; }
+        public Enum_ScheduleSubType? SubType { get; set; }
         public string Details { get; set; }
         private DateTime _startDateTime;
         private DateTime _endDateTime;
