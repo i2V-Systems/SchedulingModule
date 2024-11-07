@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Text;
 using Coravel.Scheduling.Schedule.Interfaces;
-using Polly.Registry;
 using SchedulingModule.Models;
 using SchedulingModule.services;
 using Serilog;

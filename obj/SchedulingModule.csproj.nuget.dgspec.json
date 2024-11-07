@@ -14,6 +14,7 @@
         "outputPath": "E:\\analytic_manager\\AM\\analytic_manager\\CommonUtilityModule\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "E:\\analytic_manager\\AM\\analytic_manager\\NuGet.Config",
           "C:\\Users\\ishit\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -22,6 +23,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "E:\\analytic_manager\\AM\\analytic_manager\\BusinessLayer\\Libs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -46,7 +48,7 @@
             },
             "MassTransit": {
               "target": "Package",
-              "version": "[8.2.1, )"
+              "version": "[8.2.3, )"
             },
             "MediatR": {
               "target": "Package",
@@ -60,9 +62,29 @@
               "target": "Package",
               "version": "[11.1.0, )"
             },
+            "Microsoft.AspNetCore.Http.Abstractions": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Core": {
+              "target": "Package",
+              "version": "[2.2.5, )"
+            },
+            "Microsoft.AspNetCore.Routing": {
+              "target": "Package",
+              "version": "[2.2.2, )"
+            },
             "Microsoft.AspNetCore.SignalR": {
               "target": "Package",
               "version": "[1.1.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.1, )"
             },
             "Microsoft.FeatureManagement": {
               "target": "Package",
@@ -75,6 +97,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.4, )"
             },
             "RabbitMQ.Client": {
               "target": "Package",
@@ -119,6 +145,7 @@
         "outputPath": "E:\\analytic_manager\\AM\\analytic_manager\\SchedulingModule\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "E:\\analytic_manager\\AM\\analytic_manager\\NuGet.Config",
           "C:\\Users\\ishit\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -127,6 +154,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "E:\\analytic_manager\\AM\\analytic_manager\\BusinessLayer\\Libs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -151,27 +179,15 @@
           "dependencies": {
             "Coravel": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[5.0.4, )"
             },
             "Dapper": {
               "target": "Package",
               "version": "[2.1.35, )"
             },
-            "Microsoft.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[7.0.11, )"
-            },
             "Npgsql": {
               "target": "Package",
               "version": "[7.0.4, )"
-            },
-            "Polly": {
-              "target": "Package",
-              "version": "[7.2.3, )"
-            },
-            "Serilog": {
-              "target": "Package",
-              "version": "[3.0.2-dev-02044, )"
             },
             "linq2db": {
               "target": "Package",

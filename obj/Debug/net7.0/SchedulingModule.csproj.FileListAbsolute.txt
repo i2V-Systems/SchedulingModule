@@ -60,8 +60,6 @@ E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Micros
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Abstractions.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
-E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Diagnostics.HealthChecks.dll
-E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Options.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.FeatureManagement.dll
@@ -114,4 +112,13 @@ E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\Schedu
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\SchedulingModule.genruntimeconfig.cache
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\obj\Debug\net7.0\ref\SchedulingModule.dll
 E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Coravel.dll
-E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Polly.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Relational.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.DotNet.PlatformAbstractions.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Configuration.Abstractions.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.DependencyInjection.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.DependencyModel.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Http.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Logging.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\Microsoft.Extensions.Primitives.dll
+E:\analytic_manager\AM\analytic_manager\SchedulingModule\bin\Debug\net7.0\System.Diagnostics.DiagnosticSource.dll

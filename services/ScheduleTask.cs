@@ -1,9 +1,10 @@
 ﻿using Coravel.Scheduling.Schedule.Interfaces;
 using SchedulingModule.Models;
+using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
 namespace SchedulingModule.services
 {
-
+    [SingletonService]
     public class ScheduledTaskService
     {
         private Schedules _schedule;

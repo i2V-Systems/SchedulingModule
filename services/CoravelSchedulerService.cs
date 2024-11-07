@@ -2,10 +2,12 @@
 using Coravel.Scheduling.Schedule.Interfaces;
 using SchedulingModule.Models;
 using Serilog;
+using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 using static SchedulingModule.ScheduleTypeEnum;
 
 namespace SchedulingModule.services
 {
+    [SingletonService]
     public class CoravelSchedulerService
     {
         private static IScheduler _scheduler;
@@ -30,8 +32,9 @@ namespace SchedulingModule.services
 
         public void LogicAndUnscheduleJob(Action taskToPerform, Schedules schedule)
         {
-           
-                var currentTime = DateTime.Now;
+            Console.WriteLine("Job Invoked");
+
+            var currentTime = DateTime.Now;
                 if (currentTime >= schedule.EndDateTime)
                 {
                     //event throw that job close 
@@ -59,12 +62,14 @@ namespace SchedulingModule.services
                     _scheduler.Schedule(
                             () =>
                             {
-                                LogicAndUnscheduleJob(taskToPerform, schedule);
+                                //LogicAndUnscheduleJob(taskToPerform, schedule);
+                                Console.WriteLine("job invoked.");
                             }
 
                         )
-                            .DailyAt(hours,minutes)
-                            .Zoned(TimeZoneInfo.Local);
+                        .EveryMinute()
+                        .PreventOverlapping(schedule.Id.ToString()); 
+                            //.Zoned(TimeZoneInfo.Local);
                         break;
                 }
                 case Enum_ScheduleType.Weekly:
@@ -78,7 +83,7 @@ namespace SchedulingModule.services
                                     LogicAndUnscheduleJob(taskToPerform, schedule);
                                 }
                                 )
-                                .EveryFiveMinutes()
+                                .DailyAt(hours, minutes)
                                 .Weekday()
                                 .Zoned(TimeZoneInfo.Local);
                     }

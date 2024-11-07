@@ -23,18 +23,32 @@ namespace SchedulingModule
         {
             configuration = _configuration;
             var scheduleAssembly = Assembly.Load("SchedulingModule");
-            services.AddScheduler();
             services.AddMvc().AddApplicationPart(scheduleAssembly).AddControllersAsServices();
+
+
+            services.AddScheduler();
+           
             services.AddServicesOfType<IScopedService>();
             services.AddServicesWithAttributeOfType<ScopedServiceAttribute>();
             services.AddServicesOfType<ITransientService>();
             services.AddServicesWithAttributeOfType<TransientServiceAttribute>();
             services.AddServicesOfType<ISingletonService>();
             services.AddServicesWithAttributeOfType<SingletonServiceAttribute>();
-            services.AddScoped<ScheduledTaskService>();
-            services.AddScoped<CoravelSchedulerService>();
-
-
+            services.AddDbContext<SchedulingModuleDbContext>(
+                options =>
+                {
+                    options
+                        .UseNpgsql(configuration.GetConnectionString("analytic"),
+                            b =>
+                            {
+                                b.MigrationsAssembly("DataLayer");
+                            }
+                        )
+                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                        .EnableSensitiveDataLogging();
+                },
+                ServiceLifetime.Transient
+            );
             return services;
 
         }
@@ -48,12 +62,16 @@ namespace SchedulingModule
             IServiceProvider serviceProvider, IApplicationBuilder app)
         {
             ServiceProvider = serviceProvider;
+           
             app.ApplicationServices.UseScheduler(scheduler =>
             {
                 // You can add global schedules here if needed
+
                 Scheduler = scheduler;
+                
 
             });
+
 
             ScheduleManager.InIt(configuration, Scheduler);
 
