@@ -10,18 +10,18 @@ namespace SchedulingModule.services
     [SingletonService]
     public class CoravelSchedulerService
     {
-        private static IScheduler _scheduler;
+       
 
-        public CoravelSchedulerService(IScheduler scheduler)
+        public CoravelSchedulerService()
         {
-            _scheduler = scheduler;
+            //_scheduler = scheduler;
         }
 
-        public void UnScheduleJob(Schedules schedule)
+        public void UnScheduleJob(Schedules schedule,IScheduler scheduler)
         {
             try
             {
-                (_scheduler as Scheduler).TryUnschedule(schedule.Id.ToString());
+                (scheduler as Scheduler).TryUnschedule(schedule.Id.ToString());
             }
             catch (Exception ex)
             {
@@ -30,7 +30,7 @@ namespace SchedulingModule.services
             
         }
 
-        public void LogicAndUnscheduleJob(Action taskToPerform, Schedules schedule)
+        public void LogicAndUnscheduleJob(Action taskToPerform, Schedules schedule,IScheduler scheduler)
         {
             Console.WriteLine("Job Invoked");
 
@@ -40,7 +40,8 @@ namespace SchedulingModule.services
                     //event throw that job close 
                     //id here of this running  schedule
 
-                    UnScheduleJob(schedule);
+
+                    UnScheduleJob(schedule,scheduler);
 
                 }
                 else
@@ -50,7 +51,7 @@ namespace SchedulingModule.services
 
             
         }
-        public Task ScheduleJob(Action taskToPerform,Schedules schedule,TimeSpan executeTime)
+        public Task ScheduleJob(Action taskToPerform,Schedules schedule,TimeSpan executeTime,IScheduler scheduler)
         {
             //place here functionto perform and add logic to end and execute frame in it.
             var hours = executeTime.Hours;
@@ -59,17 +60,16 @@ namespace SchedulingModule.services
             {
                 case Enum_ScheduleType.Daily:
                 {
-                    _scheduler.Schedule(
+                    scheduler.Schedule(
                             () =>
                             {
-                                //LogicAndUnscheduleJob(taskToPerform, schedule);
-                                Console.WriteLine("job invoked.");
+                                LogicAndUnscheduleJob(taskToPerform, schedule, scheduler);
                             }
 
                         )
-                        .EveryMinute()
-                        .PreventOverlapping(schedule.Id.ToString()); 
-                            //.Zoned(TimeZoneInfo.Local);
+                        .EveryMinute();
+                        //.Zoned(TimeZoneInfo.Local)
+                        //.PreventOverlapping(schedule.Id.ToString());
                         break;
                 }
                 case Enum_ScheduleType.Weekly:
@@ -77,40 +77,43 @@ namespace SchedulingModule.services
                    
                     if (schedule.SubType == Enum_ScheduleSubType.Weekdays)
                     {
-                        _scheduler.Schedule(
+                        scheduler.Schedule(
                                 () =>
                                 {
-                                    LogicAndUnscheduleJob(taskToPerform, schedule);
+                                    LogicAndUnscheduleJob(taskToPerform, schedule, scheduler);
                                 }
                                 )
                                 .DailyAt(hours, minutes)
                                 .Weekday()
-                                .Zoned(TimeZoneInfo.Local);
+                                .Zoned(TimeZoneInfo.Local)
+                                .PreventOverlapping(schedule.Id.ToString());
                     }
                     else
                     {
-                        _scheduler.Schedule(
+                        scheduler.Schedule(
                                 () =>
                                 {
-                                    LogicAndUnscheduleJob(taskToPerform, schedule);
+                                    LogicAndUnscheduleJob(taskToPerform, schedule, scheduler);
                                 }
                                 )
                                 .DailyAt(hours, minutes)
                                 .Weekend()
-                                .Zoned(TimeZoneInfo.Local);
+                                .Zoned(TimeZoneInfo.Local)
+                                .PreventOverlapping(schedule.Id.ToString());
                     }
                     break;
                 }
                 case Enum_ScheduleType.DateWise:
                 {
-                    _scheduler.Schedule(
+                    scheduler.Schedule(
                             () =>
                             {
-                                LogicAndUnscheduleJob(taskToPerform, schedule);
+                                LogicAndUnscheduleJob(taskToPerform, schedule,scheduler);
                             }
                             )
                             .DailyAt(hours,minutes)
-                            .Zoned(TimeZoneInfo.Local);
+                            .Zoned(TimeZoneInfo.Local)
+                            .PreventOverlapping(schedule.Id.ToString());
                         break;
                 }
                 case Enum_ScheduleType.Custom:

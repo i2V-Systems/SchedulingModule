@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommonUtilityModule.CrudUtilities;
+using Coravel.Events.Interfaces;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Managers;
@@ -15,15 +16,23 @@ using Serilog;
 
 namespace SchedulingModule.Controllers
 {
+   
+
     [Route("api/[controller]")]
     [ApiController]
     //[LicenceValid]
     public  class SchedulingController : Controller
     {
+
+        private readonly IDispatcher _dispatcher;
         private readonly ILogger<SchedulingController> _logger;
-        public SchedulingController(ILogger<SchedulingController> logger)
+        public SchedulingController(ILogger<SchedulingController> logger,IDispatcher dispatcher)
         {
             _logger = logger;
+            _dispatcher = dispatcher;
+
+
+
         }
 
         [HttpGet]
@@ -59,7 +68,9 @@ namespace SchedulingModule.Controllers
         {
             try
             {
+                _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
                 ScheduleManager.Add(schedule);
+               
             }
             catch (System.Exception ex)
             {

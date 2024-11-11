@@ -5,10 +5,12 @@
 
 using System.Reflection;
 using Coravel;
+using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Context;
 using SchedulingModule.Managers;
+using SchedulingModule.Models;
 using SchedulingModule.services;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
@@ -25,9 +27,14 @@ namespace SchedulingModule
             var scheduleAssembly = Assembly.Load("SchedulingModule");
             services.AddMvc().AddApplicationPart(scheduleAssembly).AddControllersAsServices();
 
-
+            //coravel services
             services.AddScheduler();
-           
+            services.AddEvents();
+
+            //services.AddTransient<VideoSourceScheduleHandler>();
+            //services.AddTransient<IListener<ScheduledReccuringEventTrigger>, VideoSourceScheduleHandler>();
+
+
             services.AddServicesOfType<IScopedService>();
             services.AddServicesWithAttributeOfType<ScopedServiceAttribute>();
             services.AddServicesOfType<ITransientService>();
@@ -62,8 +69,8 @@ namespace SchedulingModule
             IServiceProvider serviceProvider, IApplicationBuilder app)
         {
             ServiceProvider = serviceProvider;
-           
-            app.ApplicationServices.UseScheduler(scheduler =>
+            var provider = app.ApplicationServices;
+            provider.UseScheduler(scheduler =>
             {
                 // You can add global schedules here if needed
 
@@ -71,6 +78,11 @@ namespace SchedulingModule
                 
 
             });
+
+            //IEventRegistration registration = provider.ConfigureEvents();
+            //registration
+            //    .Register<ScheduledReccuringEventTrigger>()
+            //    .Subscribe<VideoSourceScheduleHandler>();
 
 
             ScheduleManager.InIt(configuration, Scheduler);

@@ -1,6 +1,7 @@
 ﻿
 using System.Collections.Concurrent;
 using System.Text;
+using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using SchedulingModule.Models;
 using SchedulingModule.services;
@@ -18,6 +19,7 @@ namespace SchedulingModule.Managers
 
         //private static HangFireScheduler hangFireSchedulerService { get; set; }
         private static ScheduledTaskService _scheduleTaskService;
+        private static SchedulerService _schedulerCRUDService;
         private static IConfiguration _configuration;
         private static IScheduler _scheduler;
 
@@ -32,12 +34,15 @@ namespace SchedulingModule.Managers
             _configuration = configuration;
             // get all schedules in Memory
             _scheduleTaskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
-            var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
-            var allSchedule = schedulerService.GetAllSchedules();
+            _schedulerCRUDService = ScheduleStartup.GetRequiredService<SchedulerService>();
+            var allSchedule = _schedulerCRUDService.GetAllSchedules();
+            
             foreach (var item in allSchedule)
             {
                 Schedules.TryAdd(item.Id, item);
             }
+           
+
 
             // get All Jobs In Memory
             //var TaskschedulerService = ScheduleStartup.GetRequiredService<TaskScheduleService>();
@@ -61,17 +66,17 @@ namespace SchedulingModule.Managers
 
         public static void Add(Schedules source)
         {
-            var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
-            schedulerService.Add(source);
+
+            _schedulerCRUDService.Add(source);
             Schedules.TryAdd(source.Id, source);
-            _scheduleTaskService.ExecuteAsync(source);
+            _scheduleTaskService.ExecuteAsync(source, _scheduler);
 
         }
 
         public static void Update(Schedules source)
         {
-            var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
-            schedulerService.Update(source);
+
+            _schedulerCRUDService.Update(source);
             Schedules previousValue;
             Schedules.TryGetValue(source.Id, out previousValue);
             Schedules.TryUpdate(source.Id, source, previousValue);
@@ -87,11 +92,11 @@ namespace SchedulingModule.Managers
 
         public static bool Delete(Schedules source)
         {
-            var schedulerService = ScheduleStartup.GetRequiredService<SchedulerService>();
+           
             _scheduleTaskService.DeleteAsync(source);
 
             var coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
-            coravelService.UnScheduleJob(source);
+            coravelService.UnScheduleJob(source, _scheduler);
 
             // get all video source from videosource manager
             //var videosources = VideoSourceManager.VideoSources;
@@ -118,7 +123,7 @@ namespace SchedulingModule.Managers
             //        }
             //    }
             //}
-            schedulerService.Delete(source);
+            _schedulerCRUDService.Delete(source);
             Schedules previousValue;
             Schedules.TryRemove(source.Id, out previousValue);
             return true;
