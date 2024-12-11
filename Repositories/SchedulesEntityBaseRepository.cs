@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
 using Dapper;
-using LinqToDB.DataProvider.PostgreSQL;
 using SchedulingModule.Abstract;
 using SchedulingModule.Context;
 using SchedulingModule.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
-using Serilog;
-
-
 namespace SchedulingModule.Repositories
 {
 

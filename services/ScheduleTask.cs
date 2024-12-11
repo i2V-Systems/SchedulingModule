@@ -20,7 +20,7 @@ namespace SchedulingModule.services
         )
         {
             _dispatcher = dispatcher;
-            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+            // _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
 
             _coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
           
@@ -28,6 +28,7 @@ namespace SchedulingModule.services
 
         public async Task ExecuteAsync(Schedules schedule,IScheduler scheduler)
         {
+            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
             _schedule = schedule;
             //this._dispatcher = dispatcher;
 

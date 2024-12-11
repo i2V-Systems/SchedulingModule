@@ -1,14 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommonUtilityModule.CrudUtilities;
 using Coravel.Events.Interfaces;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Managers;
 using SchedulingModule.Models;
@@ -24,12 +16,12 @@ namespace SchedulingModule.Controllers
     public  class SchedulingController : Controller
     {
 
-        private readonly IDispatcher _dispatcher;
+        // private readonly IDispatcher _dispatcher;
         private readonly ILogger<SchedulingController> _logger;
-        public SchedulingController(ILogger<SchedulingController> logger,IDispatcher dispatcher)
+        public SchedulingController(ILogger<SchedulingController> logger)
         {
             _logger = logger;
-            _dispatcher = dispatcher;
+            // _dispatcher = dispatcher;
 
 
 
@@ -68,7 +60,7 @@ namespace SchedulingModule.Controllers
         {
             try
             {
-                _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+                // _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
                 ScheduleManager.Add(schedule);
                
             }

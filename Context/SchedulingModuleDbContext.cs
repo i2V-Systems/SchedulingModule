@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchedulingModule.Models;
 
+
 namespace SchedulingModule.Context
 {
     public class SchedulingModuleDbContext : DbContext
