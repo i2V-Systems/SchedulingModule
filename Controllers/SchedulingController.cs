@@ -4,6 +4,7 @@ using Coravel.Events.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Managers;
 using SchedulingModule.Models;
+using SchedulingModule.services;
 using Serilog;
 
 namespace SchedulingModule.Controllers
@@ -15,16 +16,11 @@ namespace SchedulingModule.Controllers
     //[LicenceValid]
     public  class SchedulingController : Controller
     {
-
-        // private readonly IDispatcher _dispatcher;
+        
         private readonly ILogger<SchedulingController> _logger;
         public SchedulingController(ILogger<SchedulingController> logger)
         {
             _logger = logger;
-            // _dispatcher = dispatcher;
-
-
-
         }
 
         [HttpGet]
@@ -60,7 +56,8 @@ namespace SchedulingModule.Controllers
         {
             try
             {
-                // _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+              
+              
                 ScheduleManager.Add(schedule);
                
             }

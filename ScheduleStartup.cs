@@ -7,6 +7,7 @@ using System.Reflection;
 using Coravel;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Context;
 using SchedulingModule.Managers;
@@ -66,7 +67,7 @@ namespace SchedulingModule
         // wiil be initialized through main app startup
         // will need configuration to be passed, plus db context
         public static void Start(
-            IServiceProvider serviceProvider, IApplicationBuilder app)
+            IServiceProvider serviceProvider, IApplicationBuilder app,IDispatcher dispatcher)
         {
             ServiceProvider = serviceProvider;
             var provider = app.ApplicationServices;
@@ -85,7 +86,7 @@ namespace SchedulingModule
             //    .Subscribe<VideoSourceScheduleHandler>();
 
 
-            ScheduleManager.InIt(configuration, Scheduler);
+            ScheduleManager.InIt(configuration, Scheduler,dispatcher);
 
 
         }

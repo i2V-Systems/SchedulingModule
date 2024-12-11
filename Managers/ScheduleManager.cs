@@ -13,6 +13,7 @@ namespace SchedulingModule.Managers
     public static class ScheduleManager
     {
 
+       
         public static ConcurrentDictionary<Guid, Schedules> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedules>();
 
         public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
@@ -22,18 +23,22 @@ namespace SchedulingModule.Managers
         private static SchedulerService _schedulerCRUDService;
         private static IConfiguration _configuration;
         private static IScheduler _scheduler;
+        private static IDispatcher _dispatcher;
+       
 
 
         // initialise
         public static void InIt( 
             IConfiguration configuration,
-             IScheduler scheduler
+             IScheduler scheduler,IDispatcher dispatcher
         )
         {
             _scheduler = scheduler;
+            _dispatcher = dispatcher;
             _configuration = configuration;
             // get all schedules in Memory
             _scheduleTaskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
+            _scheduleTaskService._dispatcher = dispatcher;
             _schedulerCRUDService = ScheduleStartup.GetRequiredService<SchedulerService>();
             var allSchedule = _schedulerCRUDService.GetAllSchedules();
             
@@ -66,7 +71,6 @@ namespace SchedulingModule.Managers
 
         public static void Add(Schedules source)
         {
-
             _schedulerCRUDService.Add(source);
             Schedules.TryAdd(source.Id, source);
             _scheduleTaskService.ExecuteAsync(source, _scheduler);

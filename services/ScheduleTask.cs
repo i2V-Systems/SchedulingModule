@@ -11,27 +11,21 @@ namespace SchedulingModule.services
         private Schedules _schedule;
         //public static IScheduler _scheduler;
         private static CoravelSchedulerService _coravelService;
-        private readonly  IDispatcher _dispatcher;
+        public  IDispatcher _dispatcher;
 
 
         public ScheduledTaskService(
             IDispatcher dispatcher
-          
         )
         {
-            _dispatcher = dispatcher;
-            // _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
-
             _coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
           
         }
 
         public async Task ExecuteAsync(Schedules schedule,IScheduler scheduler)
         {
-            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+     
             _schedule = schedule;
-            //this._dispatcher = dispatcher;
-
             var currentTime = DateTime.Now;
 
             if (currentTime >= _schedule.StartDateTime && currentTime <= _schedule.EndDateTime)
@@ -60,9 +54,10 @@ namespace SchedulingModule.services
 
         public void HandleScheduledJob()
         {
+         
             //logic here and event callback for start and end,removejob, events 
             //throw event 
-             _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
 
 
 
