@@ -17,6 +17,7 @@ namespace SchedulingModule.Models
         private DateTime _endDateTime;
         public TimeSpan RecurringStartTime { get; set; }
         public TimeSpan RecurringEndTime { get; set; }
+        
 
 
         // Property to store StartDateTime in UTC and retrieve in local time

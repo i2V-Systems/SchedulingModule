@@ -32,12 +32,13 @@ namespace SchedulingModule.Models
     {
 
         public DateTime TriggeredAt { get; set; }
-        //public Schedules schedule { get; set; }
+        public Guid ScheduleId { get; set; }
 
 
-        public ScheduledReccuringEventTrigger()
+        public ScheduledReccuringEventTrigger(Guid scheduleId)
         {
             TriggeredAt = DateTime.UtcNow;
+            ScheduleId = scheduleId;
             //schedule = _schedule;
         }
     }

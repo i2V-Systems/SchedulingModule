@@ -18,6 +18,7 @@ namespace SchedulingModule.services
     public class SchedulerService
     {
         private ISchedulesEntityBaseRepository<Schedules> schedulesRepository;
+        private ISchedulesEntityBaseRepository<ScheduleResourceMapping> schedulesResourceRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
      
 
@@ -35,9 +36,11 @@ namespace SchedulingModule.services
             //else
             //{
                 schedulesRepository = new SchedulesEntityBaseRepository<Schedules>(scheduleDbContext);
-            //}
-           
-            
+                schedulesResourceRepository =
+                    new SchedulesEntityBaseRepository<ScheduleResourceMapping>(scheduleDbContext);
+                //}
+
+
         }
 
         public Schedules Get(Guid id)
@@ -55,6 +58,11 @@ namespace SchedulingModule.services
             schedulesRepository.Add(entity);
         }
 
+        public void AddResourceMapping(ScheduleResourceMapping map)
+        {
+            schedulesResourceRepository.Add(map);
+        }
+        
         public void Delete(Schedules entity, string userName = "")
         {
          

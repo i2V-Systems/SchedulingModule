@@ -52,12 +52,12 @@ namespace SchedulingModule.services
             }
         }
 
-        public void HandleScheduledJob()
+        public void HandleScheduledJob(Guid scheduleId)
         {
          
             //logic here and event callback for start and end,removejob, events 
             //throw event 
-            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger());
+            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger(scheduleId));
 
 
 

@@ -16,6 +16,8 @@ namespace SchedulingModule.Managers
        
         public static ConcurrentDictionary<Guid, Schedules> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedules>();
 
+        public static ConcurrentDictionary<Guid, ScheduleResourceMapping> scheduleResourcesMap { get; private set; } = new ConcurrentDictionary<Guid, ScheduleResourceMapping>();
+
         public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
 
         //private static HangFireScheduler hangFireSchedulerService { get; set; }
@@ -77,6 +79,11 @@ namespace SchedulingModule.Managers
 
         }
 
+        public static void AddScheduleResourceMap(ScheduleResourceMapping map)
+        {  
+            _schedulerCRUDService.AddResourceMapping(map);
+            scheduleResourcesMap.TryAdd(map.ScheduleId, map);
+        }
         public static void Update(Schedules source)
         {
 
