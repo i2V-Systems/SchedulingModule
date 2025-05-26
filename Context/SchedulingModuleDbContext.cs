@@ -18,12 +18,12 @@ namespace SchedulingModule.Context
         }
         //public DbSet<ActionData> ActionData { get; set; }
 
-        public DbSet<Schedules> Schedules { get; set; }
+        public DbSet<Schedule> Schedule { get; set; }
         public DbSet<ScheduleResourceMapping> ScheduleResourceMapping { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Schedules>()
+            modelBuilder.Entity<Schedule>()
                 .Property(e => e.Type)
                 .HasConversion(
                     new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleType>()
@@ -31,7 +31,7 @@ namespace SchedulingModule.Context
          
 
             // Configure the SubType property to convert Enum_ScheduleSubType? to string in the database
-            modelBuilder.Entity<Schedules>()
+            modelBuilder.Entity<Schedule>()
                 .Property(e => e.SubType)
                 .HasConversion(
                     new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleSubType>()

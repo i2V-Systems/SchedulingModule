@@ -17,7 +17,7 @@ namespace SchedulingModule.services
     [TransientService]
     public class SchedulerService
     {
-        private ISchedulesEntityBaseRepository<Schedules> schedulesRepository;
+        private ISchedulesEntityBaseRepository<Schedule> schedulesRepository;
         private ISchedulesEntityBaseRepository<ScheduleResourceMapping> schedulesResourceRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
      
@@ -35,7 +35,7 @@ namespace SchedulingModule.services
             //}
             //else
             //{
-                schedulesRepository = new SchedulesEntityBaseRepository<Schedules>(scheduleDbContext);
+                schedulesRepository = new SchedulesEntityBaseRepository<Schedule>(scheduleDbContext);
                 schedulesResourceRepository =
                     new SchedulesEntityBaseRepository<ScheduleResourceMapping>(scheduleDbContext);
                 //}
@@ -43,17 +43,17 @@ namespace SchedulingModule.services
 
         }
 
-        public Schedules Get(Guid id)
+        public Schedule Get(Guid id)
         {
             return schedulesRepository.Get(id);
         }
 
-        public List<Schedules> GetAllSchedules()
+        public List<Schedule> GetAllSchedules()
         {
             return schedulesRepository.GetAll();
         }
 
-        public void Add(Schedules entity, string userName = "")
+        public void Add(Schedule entity, string userName = "")
         {
             schedulesRepository.Add(entity);
         }
@@ -63,7 +63,7 @@ namespace SchedulingModule.services
             schedulesResourceRepository.Add(map);
         }
         
-        public void Delete(Schedules entity, string userName = "")
+        public void Delete(Schedule entity, string userName = "")
         {
          
             schedulesRepository.Delete(entity);
@@ -74,7 +74,7 @@ namespace SchedulingModule.services
         //    return schedulesRepository.FromSql(query);
         //}
 
-        public void Update(Schedules entity, string userName = "")
+        public void Update(Schedule entity, string userName = "")
         {
         
             schedulesRepository.Update(entity);

@@ -17,7 +17,7 @@ namespace SchedulingModule.services
             //_scheduler = scheduler;
         }
 
-        public void UnScheduleJob(Schedules schedule,IScheduler scheduler)
+        public void UnScheduleJob(Schedule schedule,IScheduler scheduler)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace SchedulingModule.services
             
         }
 
-        public void LogicAndUnscheduleJob(Action<Guid> taskToPerform, Schedules schedule,IScheduler scheduler)
+        public void LogicAndUnscheduleJob(Action<Guid> taskToPerform, Schedule schedule,IScheduler scheduler)
         {
             Console.WriteLine("Job Invoked");
 
@@ -51,7 +51,7 @@ namespace SchedulingModule.services
 
             
         }
-        public Task ScheduleJob(Action<Guid> taskToPerform,Schedules schedule,TimeSpan executeTime,IScheduler scheduler)
+        public Task ScheduleJob(Action<Guid> taskToPerform,Schedule schedule,TimeSpan executeTime,IScheduler scheduler)
         {
             //place here functionto perform and add logic to end and execute frame in it.
             var hours = executeTime.Hours;

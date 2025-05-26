@@ -8,7 +8,7 @@ namespace SchedulingModule.services
     [SingletonService]
     public class ScheduledTaskService
     {
-        private Schedules _schedule;
+        private Schedule _schedule;
         //public static IScheduler _scheduler;
         private static CoravelSchedulerService _coravelService;
         public  IDispatcher _dispatcher;
@@ -22,7 +22,7 @@ namespace SchedulingModule.services
           
         }
 
-        public async Task ExecuteAsync(Schedules schedule,IScheduler scheduler)
+        public async Task ExecuteAsync(Schedule schedule,IScheduler scheduler)
         {
      
             _schedule = schedule;
@@ -63,12 +63,12 @@ namespace SchedulingModule.services
 
 
         }
-        public async Task UpdateAsync(Schedules schedule)
+        public async Task UpdateAsync(Schedule schedule)
         {
             //update the scheduled job
 
         }
-        public async Task DeleteAsync(Schedules schedule)
+        public async Task DeleteAsync(Schedule schedule)
         {
             //update the scheduled job
 

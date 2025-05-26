@@ -24,7 +24,7 @@ namespace SchedulingModule.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Schedules> GetAll()
+        public IEnumerable<Schedule> GetAll()
         {
             return ScheduleManager.Schedules.Values;
         }
@@ -52,7 +52,7 @@ namespace SchedulingModule.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Schedules schedule)
+        public IActionResult Post([FromBody] Schedule schedule)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace SchedulingModule.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(Guid id, [FromBody] Schedules schedule)
+        public IActionResult Put(Guid id, [FromBody] Schedule schedule)
         {
             if (!ModelState.IsValid)
             {

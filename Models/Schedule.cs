@@ -5,7 +5,7 @@ namespace SchedulingModule.Models
 {
 
     
-    public class Schedules : ISchedulesEntityBase
+    public class Schedule : ISchedulesEntityBase
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

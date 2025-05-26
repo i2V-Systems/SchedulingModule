@@ -6,10 +6,10 @@ namespace SchedulingModule.Models
     {
 
         public DateTime TriggeredAt { get; set; }
-        public Schedules schedule { get; set; }
+        public Schedule schedule { get; set; }
          
 
-        public ScheduledStartEventTrigger(Schedules _schedule)
+        public ScheduledStartEventTrigger(Schedule _schedule)
         {
             TriggeredAt = DateTime.UtcNow;
             schedule= _schedule;
@@ -19,10 +19,10 @@ namespace SchedulingModule.Models
     {
 
         public DateTime TriggeredAt { get; set; }
-        public Schedules schedule { get; set; }
+        public Schedule schedule { get; set; }
 
 
-        public ScheduledEndEventTrigger(Schedules _schedule)
+        public ScheduledEndEventTrigger(Schedule _schedule)
         {
             TriggeredAt = DateTime.UtcNow;
             schedule = _schedule;

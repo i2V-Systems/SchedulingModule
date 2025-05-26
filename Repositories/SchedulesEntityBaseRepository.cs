@@ -207,7 +207,7 @@ namespace SchedulingModule.Repositories
         /// <summary>
         /// Return all the entry from the database.
         /// </summary>
-        /// <returns></returns>
+    /// <returns></returns>
         public virtual List<T> GetAll()
         {
             lock (thisLock)

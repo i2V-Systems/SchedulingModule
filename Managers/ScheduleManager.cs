@@ -14,7 +14,7 @@ namespace SchedulingModule.Managers
     {
 
        
-        public static ConcurrentDictionary<Guid, Schedules> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedules>();
+        public static ConcurrentDictionary<Guid, Schedule> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedule>();
 
         public static ConcurrentDictionary<Guid, ScheduleResourceMapping> scheduleResourcesMap { get; private set; } = new ConcurrentDictionary<Guid, ScheduleResourceMapping>();
 
@@ -64,14 +64,14 @@ namespace SchedulingModule.Managers
 
         }
 
-        public static Schedules Get(Guid id)
+        public static Schedule Get(Guid id)
         {
-            Schedules value;
+            Schedule value;
             Schedules.TryGetValue(id, out value);
             return value;
         }
 
-        public static void Add(Schedules source)
+        public static void Add(Schedule source)
         {
             _schedulerCRUDService.Add(source);
             Schedules.TryAdd(source.Id, source);
@@ -84,11 +84,11 @@ namespace SchedulingModule.Managers
             _schedulerCRUDService.AddResourceMapping(map);
             scheduleResourcesMap.TryAdd(map.ScheduleId, map);
         }
-        public static void Update(Schedules source)
+        public static void Update(Schedule source)
         {
 
             _schedulerCRUDService.Update(source);
-            Schedules previousValue;
+            Schedule previousValue;
             Schedules.TryGetValue(source.Id, out previousValue);
             Schedules.TryUpdate(source.Id, source, previousValue);
             _scheduleTaskService.UpdateAsync(source);
@@ -101,7 +101,7 @@ namespace SchedulingModule.Managers
         //    return TaskschedulerService.getByIdWithAttachedTasks(id);
         //}
 
-        public static bool Delete(Schedules source)
+        public static bool Delete(Schedule source)
         {
            
             _scheduleTaskService.DeleteAsync(source);
@@ -135,7 +135,7 @@ namespace SchedulingModule.Managers
             //    }
             //}
             _schedulerCRUDService.Delete(source);
-            Schedules previousValue;
+            Schedule previousValue;
             Schedules.TryRemove(source.Id, out previousValue);
             return true;
         }
@@ -200,7 +200,7 @@ namespace SchedulingModule.Managers
 
 
         // update in schedule dictionary
-        private static void UpdateScheduleDictionary(int ConfigurationdId, string JobId, Schedules schedules)
+        private static void UpdateScheduleDictionary(int ConfigurationdId, string JobId, Schedule schedules)
             //VideoSource videoSource)
         {
             // add in dict
