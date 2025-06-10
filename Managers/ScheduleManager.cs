@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Text;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
@@ -20,6 +21,12 @@ namespace SchedulingModule.Managers
 
         public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
 
+        public static ConcurrentDictionary<
+            Guid,
+            SchedulAllDetails> scheduleWithAllDetailsDictionary
+        { get; private set; } =
+            new ConcurrentDictionary<Guid, SchedulAllDetails>();
+        
         //private static HangFireScheduler hangFireSchedulerService { get; set; }
         private static ScheduledTaskService _scheduleTaskService;
         private static SchedulerService _schedulerCRUDService;
@@ -48,20 +55,6 @@ namespace SchedulingModule.Managers
             {
                 Schedules.TryAdd(item.Id, item);
             }
-           
-
-
-            // get All Jobs In Memory
-            //var TaskschedulerService = ScheduleStartup.GetRequiredService<TaskScheduleService>();
-            //var allJob = TaskschedulerService.GetAllSchedulesJob();
-            //foreach (var job in allJob)
-            //{
-            //    ScheduleDict[job.JobId] = true;
-            //}
-
-            ////get hangFireScheduler Service from Startup
-            //hangFireSchedulerService = ScheduleStartup.GetRequiredService<HangFireScheduler>();
-
         }
 
         public static Schedule Get(Guid id)
@@ -71,6 +64,83 @@ namespace SchedulingModule.Managers
             return value;
         }
 
+        public static async Task<IEnumerable<SchedulAllDetails>> GetScheduleWithAllDetails(
+            string userName
+        )
+        {
+            try
+            {
+
+                if (scheduleWithAllDetailsDictionary.Count == 0)
+                {
+                    //dictionary not initialized, initializing one
+                    IEnumerable<Schedule> scheduleValues = Schedules.Values;
+                    await UpdateScheduleWithAllDetailsDictBySchedules(scheduleValues);
+                }
+
+                if (scheduleWithAllDetailsDictionary.Count > 0)
+                {
+                    if (userName == "admin")
+                    {
+                        return scheduleWithAllDetailsDictionary.Values;
+                    }
+                    else
+                    {
+                        // var user = await User.GetUserVmByUserName(userName);
+                        // var x = scheduleWithAllDetailsDictionary
+                        //     .Values.ToList()
+                        //     .Where(scheduleDetail =>
+                        //     {
+                        //         return scheduleDetail
+                        //             ..UserVideoSources.Where(userDetail =>
+                        //             {
+                        //                 var y = userDetail.UserId == user.User.Id;
+                        //                 return y;
+                        //             })
+                        //             .Any();
+                        //     })
+                        //     .ToList();
+                        // return x;
+                    }
+                }
+
+                return ImmutableList<SchedulAllDetails>.Empty;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[VideoSourceManager][getAllDetailsOfVideoSource] : " + ex.Message);
+                return null;
+            }
+        }
+           private static async Task UpdateScheduleWithAllDetailsDictBySchedules(
+            IEnumerable<Schedule> schedulesValues
+        )
+        {
+            foreach (var schedule in schedulesValues)
+            {
+                SchedulAllDetails scheduleWithDetails = new SchedulAllDetails();
+                scheduleWithDetails.schedules = schedule;
+
+                InsertAndUpdateValueInScheduleWithAllDetailsDictionary(scheduleWithDetails);
+            }
+        }
+           public static void InsertAndUpdateValueInScheduleWithAllDetailsDictionary(
+               SchedulAllDetails schedulAllDetails
+           )
+           {
+               try
+               {
+                   scheduleWithAllDetailsDictionary[schedulAllDetails.schedules.Id] =
+                       schedulAllDetails;
+               }
+               catch (Exception ex)
+               {
+                   Log.Error(
+                       "[InsertAndUpdateValueInScheduleWithAllDetailsDictionary] : " + ex.Message
+                   );
+               }
+           }
+           
         public static void Add(Schedule source)
         {
             _schedulerCRUDService.Add(source);

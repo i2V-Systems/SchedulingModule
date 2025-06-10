@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Coravel.Events.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 using SchedulingModule.Managers;
 using SchedulingModule.Models;
 using SchedulingModule.services;
@@ -26,9 +27,27 @@ namespace SchedulingModule.Controllers
         [HttpGet]
         public IEnumerable<Schedule> GetAll()
         {
+            
+             
             return ScheduleManager.Schedules.Values;
         }
-
+       
+        [HttpGet("~/api/Schedules/GetAllResourceDetails")]
+        public async Task<IActionResult> GetAllResourceDetails()
+        { 
+            try
+            {
+                StringValues UserName;
+                HttpContext.Request.Headers.TryGetValue("Username", out UserName);
+                return Ok(await ScheduleManager.GetScheduleWithAllDetails(UserName));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message.ToString());
+                return BadRequest(ex.Message.ToString());
+            }
+        }
+        
         [HttpGet("{id}")]
         public IActionResult Get([FromRoute] Guid id)
         {
@@ -121,7 +140,7 @@ namespace SchedulingModule.Controllers
                 ScheduleManager.Delete(schedule);
                 return Ok(schedule);
                
-                //return Json(new { status = "error", message = "Schedule Deleted Failed its Atached to a Configuration" });
+                //return Json(new { status = "error", message = "Schedule Deleted Failed its Attached to a Configuration" });
             }
             catch (DbUpdateConcurrencyException ex)
             {
