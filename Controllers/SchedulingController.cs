@@ -1,4 +1,5 @@
 ﻿
+using CommonUtilityModule.CrudUtilities;
 using Microsoft.AspNetCore.Mvc;
 using Coravel.Events.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -71,13 +72,28 @@ namespace SchedulingModule.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Schedule schedule)
+        public async Task<IActionResult> Post([FromBody] Schedule schedule)
         {
             try
             {
-              
-              
-                ScheduleManager.Add(schedule);
+                HttpContext.Request.Headers.TryGetValue("clientId", out  StringValues clientId);
+                HttpContext.Request.Headers.TryGetValue("userid", out StringValues userid);
+                
+                ScheduleManager.Add(schedule,userid);
+                
+                SchedulAllDetails schedulesource =
+                    ScheduleManager.scheduleWithAllDetailsDictionary[schedule.Id];
+                var objectToSend = new Dictionary<string, dynamic>()
+                {
+                    {
+                        "scheduleAllDetailsList",
+                        new List<SchedulAllDetails>() { schedulesource }
+                    }
+                };
+                await ScheduleManager.SendCrudDataToClient(
+                    CrudMethodType.Add,
+                    objectToSend
+                );
                
             }
             catch (System.Exception ex)

@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text;
+using CommonUtilityModule.CrudUtilities;
+using CommonUtilityModule.Manager;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using SchedulingModule.Models;
@@ -56,7 +58,7 @@ namespace SchedulingModule.Managers
                 Schedules.TryAdd(item.Id, item);
             }
         }
-
+       
         public static Schedule Get(Guid id)
         {
             Schedule value;
@@ -141,12 +143,21 @@ namespace SchedulingModule.Managers
                }
            }
            
-        public static void Add(Schedule source)
+        public static void Add(Schedule source, string userid = null)
         {
             _schedulerCRUDService.Add(source);
+             AddScheduleInMemory(source);
             Schedules.TryAdd(source.Id, source);
             _scheduleTaskService.ExecuteAsync(source, _scheduler);
 
+        }
+        public static void AddScheduleInMemory(Schedule source)
+        {
+            Schedules.TryAdd(source.Id, source);
+
+            SchedulAllDetails scheduleAllDetails = new SchedulAllDetails();
+            scheduleAllDetails.schedules = source;
+            InsertAndUpdateValueInScheduleWithAllDetailsDictionary(scheduleAllDetails);
         }
 
         public static void AddScheduleResourceMap(ScheduleResourceMapping map)
@@ -171,13 +182,30 @@ namespace SchedulingModule.Managers
         //    return TaskschedulerService.getByIdWithAttachedTasks(id);
         //}
 
+        public static async Task SendCrudDataToClient(
+            CrudMethodType crudMethodType,
+            Dictionary<string, dynamic> resources,
+            List<string>? userClientIdsToBeNeglected = null,
+            List<string>? userClientIdsToBeNotified = null
+        )
+        {
+            await CrudManager.SendCrudDataToClient(
+                CrudRelatedEntity.Schedule,
+                crudMethodType,
+                resources,
+                userClientIdsToBeNeglected,
+                userClientIdsToBeNotified
+            );
+        }
+
+        
         public static bool Delete(Schedule source)
         {
            
             _scheduleTaskService.DeleteAsync(source);
 
             var coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
-            coravelService.UnScheduleJob(source, _scheduler);
+            coravelService.UnscheduleJob(source, _scheduler);
 
             // get all video source from videosource manager
             //var videosources = VideoSourceManager.VideoSources;

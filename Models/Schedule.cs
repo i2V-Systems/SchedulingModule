@@ -3,7 +3,11 @@ using static SchedulingModule.ScheduleTypeEnum;
 
 namespace SchedulingModule.Models
 {
-
+    public enum ScheduleEventType
+    {
+        Start,
+        End
+    }
     
     public class Schedule : ISchedulesEntityBase
     {
@@ -15,8 +19,9 @@ namespace SchedulingModule.Models
         public string Details { get; set; }
         private DateTime _startDateTime;
         private DateTime _endDateTime;
-        public TimeSpan RecurringStartTime { get; set; }
-        public TimeSpan RecurringEndTime { get; set; }
+        public int? NoOfDays { get; set; }
+        public List<string> StartDays { get; set; }
+        
         
 
 
@@ -26,29 +31,12 @@ namespace SchedulingModule.Models
             get => _startDateTime.ToLocalTime();
             set => _startDateTime = value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
         }
-
-        // Property to store EndDateTime in UTC and retrieve in local time
-        //public DateTime RecurringStartTime
-        //{
-        //    get => _recurringStartTime.ToLocalTime();
-        //    set => _recurringStartTime = value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
-        //}
-        //public DateTime RecurringEndTime
-        //{
-        //    get => _recurringEndTime.ToLocalTime();
-        //    set => _recurringEndTime = value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
-        //}
-
-        // Property to store EndDateTime in UTC and retrieve in local time
         public DateTime EndDateTime
         {
             get => _endDateTime.ToLocalTime();
             set => _endDateTime = value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
         }
-
-        //public DateTime StartDateTime {get; set; }
-        //public DateTime EndDateTime { get; set; }
-        //public DateTime? RecurringTime { get; set; }
+        
         public string? StartCronExp { get; set; }
         public string? StopCronExp { get; set; }
 
@@ -63,5 +51,7 @@ namespace SchedulingModule.Models
         }
     }
 
+   
+    
 
 }

@@ -31,18 +31,8 @@ namespace SchedulingModule.services
             if (currentTime >= _schedule.StartDateTime && currentTime <= _schedule.EndDateTime)
             {
                 // Execute the main task since it is within the scheduled range
-               
-                if (schedule.RecurringStartTime == schedule.RecurringEndTime)
-                {
-                    await _coravelService.ScheduleJob(HandleScheduledJob, schedule,schedule.RecurringStartTime,scheduler);
-                }
-                else
-                {
-                    await _coravelService.ScheduleJob(HandleScheduledJob, schedule, schedule.RecurringStartTime, scheduler);
-                    await _coravelService.ScheduleJob(HandleScheduledJob, schedule, schedule.RecurringEndTime, scheduler);
-
-                }
-               
+                await _coravelService.ScheduleJob(HandleScheduledJob, schedule, scheduler);
+                await _coravelService.ScheduleJob(HandleScheduledJob, schedule, scheduler);
             }
             else if (currentTime > _schedule.EndDateTime)
             {
@@ -52,7 +42,7 @@ namespace SchedulingModule.services
             }
         }
 
-        public void HandleScheduledJob(Guid scheduleId)
+        public void HandleScheduledJob(Guid scheduleId,ScheduleEventType type)
         {
          
             //logic here and event callback for start and end,removejob, events 
