@@ -10,7 +10,7 @@ public class ScheduleJobStrategy
         private readonly Dictionary<string, Type> _strategyCache;
         private readonly IServiceProvider _serviceProvider;
 
-        ScheduleJobStrategy(IServiceProvider serviceProvider)
+        public ScheduleJobStrategy(IServiceProvider serviceProvider)
         {
                 _serviceProvider = serviceProvider;
                 _instanceCache = new Dictionary<string, IScheduleJobStrategy>();
