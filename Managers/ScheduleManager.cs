@@ -15,44 +15,37 @@ namespace SchedulingModule.Managers
 {
     public static class ScheduleManager
     {
-
-       
+        private static  IServiceProvider _serviceProvider;
+        private static  IScheduler _scheduler;
+        private static  IDispatcher _dispatcher;
+        private static  IConfiguration _configuration;
         public static ConcurrentDictionary<Guid, Schedule> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedule>();
-
         public static ConcurrentDictionary<Guid, ScheduleResourceMapping> scheduleResourcesMap { get; private set; } = new ConcurrentDictionary<Guid, ScheduleResourceMapping>();
-
         public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
-
-        public static ConcurrentDictionary<
-            Guid,
-            SchedulAllDetails> scheduleWithAllDetailsDictionary
-        { get; private set; } =
+        public static ConcurrentDictionary<Guid, SchedulAllDetails> scheduleWithAllDetailsDictionary { get; private set; } =
             new ConcurrentDictionary<Guid, SchedulAllDetails>();
         
-        //private static HangFireScheduler hangFireSchedulerService { get; set; }
-        private static ScheduledTaskService _scheduleTaskService;
-        private static SchedulerService _schedulerCRUDService;
-        private static IConfiguration _configuration;
-        private static IScheduler _scheduler;
-        private static IDispatcher _dispatcher;
-       
-
-
+        private static  ScheduledTaskService _scheduleTaskService;
+        private static  SchedulerService _schedulerCRUDService;
+        
         // initialise
-        public static void InIt( 
-            IConfiguration configuration,
-             IScheduler scheduler,IDispatcher dispatcher
+        public static async Task Init( 
+             IConfiguration configuration,
+             IScheduler scheduler,
+             IDispatcher dispatcher,
+             IServiceProvider serviceProvider
         )
         {
-            _scheduler = scheduler;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _dispatcher = dispatcher;
             _configuration = configuration;
             // get all schedules in Memory
             _scheduleTaskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
+            
+            await ScheduleEventManager.Init(serviceProvider);
             _scheduleTaskService._dispatcher = dispatcher;
             _schedulerCRUDService = ScheduleStartup.GetRequiredService<SchedulerService>();
             var allSchedule = _schedulerCRUDService.GetAllSchedules();
-            
             foreach (var item in allSchedule)
             {
                 Schedules.TryAdd(item.Id, item);
@@ -72,14 +65,11 @@ namespace SchedulingModule.Managers
         {
             try
             {
-
                 if (scheduleWithAllDetailsDictionary.Count == 0)
                 {
-                    //dictionary not initialized, initializing one
                     IEnumerable<Schedule> scheduleValues = Schedules.Values;
                     await UpdateScheduleWithAllDetailsDictBySchedules(scheduleValues);
                 }
-
                 if (scheduleWithAllDetailsDictionary.Count > 0)
                 {
                     if (userName == "admin")
@@ -88,24 +78,8 @@ namespace SchedulingModule.Managers
                     }
                     else
                     {
-                        // var user = await User.GetUserVmByUserName(userName);
-                        // var x = scheduleWithAllDetailsDictionary
-                        //     .Values.ToList()
-                        //     .Where(scheduleDetail =>
-                        //     {
-                        //         return scheduleDetail
-                        //             ..UserVideoSources.Where(userDetail =>
-                        //             {
-                        //                 var y = userDetail.UserId == user.User.Id;
-                        //                 return y;
-                        //             })
-                        //             .Any();
-                        //     })
-                        //     .ToList();
-                        // return x;
                     }
                 }
-
                 return ImmutableList<SchedulAllDetails>.Empty;
             }
             catch (Exception ex)
@@ -114,9 +88,9 @@ namespace SchedulingModule.Managers
                 return null;
             }
         }
-           private static async Task UpdateScheduleWithAllDetailsDictBySchedules(
+        private static async Task UpdateScheduleWithAllDetailsDictBySchedules(
             IEnumerable<Schedule> schedulesValues
-        )
+            )
         {
             foreach (var schedule in schedulesValues)
             {
@@ -126,7 +100,7 @@ namespace SchedulingModule.Managers
                 InsertAndUpdateValueInScheduleWithAllDetailsDictionary(scheduleWithDetails);
             }
         }
-           public static void InsertAndUpdateValueInScheduleWithAllDetailsDictionary(
+        public static void InsertAndUpdateValueInScheduleWithAllDetailsDictionary(
                SchedulAllDetails schedulAllDetails
            )
            {
@@ -143,18 +117,16 @@ namespace SchedulingModule.Managers
                }
            }
            
-        public static void Add(Schedule source, string userid = null)
-        {
-            _schedulerCRUDService.Add(source);
-             AddScheduleInMemory(source);
-            Schedules.TryAdd(source.Id, source);
-            _scheduleTaskService.ExecuteAsync(source, _scheduler);
+        public static void Add(Schedule source, string userid = null) {
+                _schedulerCRUDService.Add(source);
+                 AddScheduleInMemory(source);
+                Schedules.TryAdd(source.Id, source);
+                _scheduleTaskService.ExecuteAsync(source, _scheduler);
 
         }
         public static void AddScheduleInMemory(Schedule source)
         {
             Schedules.TryAdd(source.Id, source);
-
             SchedulAllDetails scheduleAllDetails = new SchedulAllDetails();
             scheduleAllDetails.schedules = source;
             InsertAndUpdateValueInScheduleWithAllDetailsDictionary(scheduleAllDetails);
@@ -167,20 +139,13 @@ namespace SchedulingModule.Managers
         }
         public static void Update(Schedule source)
         {
-
             _schedulerCRUDService.Update(source);
             Schedule previousValue;
             Schedules.TryGetValue(source.Id, out previousValue);
             Schedules.TryUpdate(source.Id, source, previousValue);
             _scheduleTaskService.UpdateAsync(source);
-
         }
-
-        //public static List<ScheduledTaskService> getByIdwithTasks(int id)
-        //{
-        //    var TaskschedulerService = ScheduleStartup.GetRequiredService<TaskScheduleService>();
-        //    return TaskschedulerService.getByIdWithAttachedTasks(id);
-        //}
+        
 
         public static async Task SendCrudDataToClient(
             CrudMethodType crudMethodType,
@@ -201,37 +166,8 @@ namespace SchedulingModule.Managers
         
         public static bool Delete(Schedule source)
         {
-           
             _scheduleTaskService.DeleteAsync(source);
-
-            var coravelService = ScheduleStartup.GetRequiredService<CoravelSchedulerService>();
-            coravelService.UnscheduleJob(source, _scheduler);
-
-            // get all video source from videosource manager
-            //var videosources = VideoSourceManager.VideoSources;
-            // get attach video source configuration
-
-            //(_scheduler as Scheduler).TryUnschedule("LogCleanerID");
-
-
-
-            //foreach (var videoSource in videosources)
-            //{
-            //    var videoSourceConfig = VideoSourceManager.GetVideoSourceWithConfigsAsync(videoSource.Value.Id).Result.VideoSourceConfig;
-            //    // iterate over all video source configuration
-            //    if (videoSourceConfig != null)
-            //    {
-            //        foreach (var config in videoSourceConfig)
-            //        {
-            //            // if any configuration have this schedule return schdule is attached with configuration
-            //            if (config.TaskId == source.Id)
-            //            {
-            //                return false;
-            //            }
-
-            //        }
-            //    }
-            //}
+            ScheduleEventManager.scheduleEventService.UnscheduleJob(source, _scheduler);
             _schedulerCRUDService.Delete(source);
             Schedule previousValue;
             Schedules.TryRemove(source.Id, out previousValue);
@@ -297,7 +233,7 @@ namespace SchedulingModule.Managers
 
 
 
-        // update in schedule dictionary
+        
         private static void UpdateScheduleDictionary(int ConfigurationdId, string JobId, Schedule schedules)
             //VideoSource videoSource)
         {
