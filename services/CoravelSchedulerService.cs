@@ -15,8 +15,9 @@ public class CoravelSchedulerService : ISchedulerTaskService
     
     public CoravelSchedulerService(IServiceProvider serviceProvider)
     {
-        _strategyFactory = _serviceProvider.GetService<ScheduleJobStrategy>();
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _strategyFactory = _serviceProvider.GetService<ScheduleJobStrategy>();
+      
       
     }
 

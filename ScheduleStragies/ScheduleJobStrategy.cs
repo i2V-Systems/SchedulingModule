@@ -1,3 +1,4 @@
+using System.Reflection;
 using Serilog;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
@@ -8,14 +9,36 @@ public class ScheduleJobStrategy
 {
         private readonly Dictionary<string, IScheduleJobStrategy> _instanceCache;
         private readonly Dictionary<string, Type> _strategyCache;
-        private readonly IServiceProvider _serviceProvider;
+        private static  IServiceProvider _serviceProvider;
 
         public ScheduleJobStrategy(IServiceProvider serviceProvider)
         {
                 _serviceProvider = serviceProvider;
                 _instanceCache = new Dictionary<string, IScheduleJobStrategy>();
                 _strategyCache = new Dictionary<string, Type>();
+                DiscoverStrategies();
         }
+        private void DiscoverStrategies()
+        { 
+                // Get all registered strategies from DI container
+                List<Type> strategies=Assembly.GetExecutingAssembly().GetTypes()
+                        .Where(type => typeof(IScheduleJobStrategy).IsAssignableFrom(type) && 
+                                       !type.IsInterface && 
+                                       !type.IsAbstract)
+                        .ToList();
+                foreach (var strategy in strategies)
+                {
+                        // var key = CreateCacheKey();
+            
+                        if (!_instanceCache.ContainsKey(strategy.Name))
+                        {
+                                _strategyCache[strategy.Name] = strategy;
+                                _instanceCache[strategy.Name] = CreateStrategyInstance(strategy);
+                                Log.Debug($"Registered strategy: {strategy.GetType().Name} for {strategy.Name}.");
+                        }
+                }
+        }
+        
         public IScheduleJobStrategy GetStrategy(ScheduleTypeEnum.Enum_ScheduleType scheduleType)
         {
                 var key = CreateCacheKey(scheduleType);
@@ -44,27 +67,26 @@ public class ScheduleJobStrategy
                 throw new NotSupportedException($"No strategy found for schedule type {scheduleType}. " +
                                                 $"Available strategies: {string.Join(", ", _instanceCache.Keys)}");
         }
-        private IScheduleJobStrategy CreateStrategyInstance(Type strategyType)
+        private static IScheduleJobStrategy CreateStrategyInstance(Type strategyType)
         {
                 try
-                { 
-                        // Try to get from DI container first
-                        var instance = _serviceProvider.GetService(strategyType) as IScheduleJobStrategy;
-                        if (instance != null)
+                {
+                        // get from DI container 
+                        var serviceFromDi = _serviceProvider.GetRequiredService(strategyType);
+                        if (serviceFromDi != null)
                         {
-                                return instance;
+                                return (IScheduleJobStrategy)serviceFromDi;
                         }
-                        // Fallback to Activator
                         return Activator.CreateInstance(strategyType) as IScheduleJobStrategy;
                 }
                 catch (Exception ex)
                 {
-                        Log.Error(ex, $"Failed to create instance of strategy {strategyType.Name}");
-                        return null;
+                        throw new InvalidOperationException($"Failed to create instance of {strategyType.Name}: {ex.Message}", ex);
                 }
         }
+        
         private static string CreateCacheKey(ScheduleTypeEnum.Enum_ScheduleType scheduleType)
         {
-                return  scheduleType.ToString();
+                return  scheduleType.ToString()+"ScheduleStrategy";
         }
 }

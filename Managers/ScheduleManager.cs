@@ -29,7 +29,7 @@ namespace SchedulingModule.Managers
         private static  SchedulerService _schedulerCRUDService;
         
         // initialise
-        public static async Task Init( 
+        public static void Init( 
              IConfiguration configuration,
              IScheduler scheduler,
              IDispatcher dispatcher,
@@ -39,10 +39,11 @@ namespace SchedulingModule.Managers
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _dispatcher = dispatcher;
             _configuration = configuration;
+            _scheduler = scheduler;
             // get all schedules in Memory
             _scheduleTaskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
             
-            await ScheduleEventManager.Init(serviceProvider);
+            ScheduleEventManager.Init(serviceProvider);
             _scheduleTaskService._dispatcher = dispatcher;
             _schedulerCRUDService = ScheduleStartup.GetRequiredService<SchedulerService>();
             var allSchedule = _schedulerCRUDService.GetAllSchedules();

@@ -17,20 +17,20 @@ public class DailyScheduleStrategy : IScheduleJobStrategy
         return scheduleType == ScheduleTypeEnum.Enum_ScheduleType.Daily;
     }
 
-    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, Schedule schedule, IScheduler scheduler, ISchedulerTaskService service)
+    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, Schedule schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         if (schedule.SubType == ScheduleTypeEnum.Enum_ScheduleSubType.Every)
         {
             // TODO: Implement every N days logic
-            ScheduleStartAndEndEventsEvery(taskToPerform, schedule, scheduler, service);
+            ScheduleStartAndEndEventsEvery(taskToPerform, schedule, scheduler, eventExecutor);
             return Task.CompletedTask;
         }
 
-        ScheduleStartAndEndEvents(taskToPerform, schedule, scheduler, service);
+        ScheduleStartAndEndEvents(taskToPerform, schedule, scheduler,eventExecutor);
         return Task.CompletedTask;
     }
 
-    private void ScheduleStartAndEndEvents(Action<Guid, ScheduleEventType> taskToPerform, Schedule schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    private void ScheduleStartAndEndEvents(Action<Guid, ScheduleEventType> taskToPerform, Schedule schedule, IScheduler scheduler,ISchedulerTaskService eventExecutor)
     {
         var startTime = schedule.StartDateTime;
         var endTime = schedule.EndDateTime;
