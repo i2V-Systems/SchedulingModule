@@ -6,6 +6,7 @@ using CommonUtilityModule.CrudUtilities;
 using CommonUtilityModule.Manager;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Models;
 using SchedulingModule.services;
 using Serilog;
@@ -21,7 +22,6 @@ namespace SchedulingModule.Managers
         private static  IConfiguration _configuration;
         public static ConcurrentDictionary<Guid, Schedule> Schedules { get; private set; } = new ConcurrentDictionary<Guid, Schedule>();
         public static ConcurrentDictionary<Guid, ScheduleResourceMapping> scheduleResourcesMap { get; private set; } = new ConcurrentDictionary<Guid, ScheduleResourceMapping>();
-        public static ConcurrentDictionary<string, bool> ScheduleDict { get; set; } = new ConcurrentDictionary<string, bool>();
         public static ConcurrentDictionary<Guid, SchedulAllDetails> scheduleWithAllDetailsDictionary { get; private set; } =
             new ConcurrentDictionary<Guid, SchedulAllDetails>();
         
@@ -138,16 +138,16 @@ namespace SchedulingModule.Managers
             _schedulerCRUDService.AddResourceMapping(map);
             scheduleResourcesMap.TryAdd(map.ScheduleId, map);
         }
-        public static void Update(Schedule source)
+        public static void UpdateInDbandMemory(Schedule source)
         {
+          
             _schedulerCRUDService.Update(source);
-            Schedule previousValue;
-            Schedules.TryGetValue(source.Id, out previousValue);
-            Schedules.TryUpdate(source.Id, source, previousValue);
+            UpdateScheduleInMemory(source);
+            //job related
             _scheduleTaskService.UpdateAsync(source);
         }
         
-
+      
         public static async Task SendCrudDataToClient(
             CrudMethodType crudMethodType,
             Dictionary<string, dynamic> resources,
@@ -167,22 +167,66 @@ namespace SchedulingModule.Managers
         
         public static bool Delete(Schedule source)
         {
+            _schedulerCRUDService.Delete(source);
+            Schedules.TryRemove(source.Id, out Schedule previousValue);
             _scheduleTaskService.DeleteAsync(source);
             ScheduleEventManager.scheduleEventService.UnscheduleJob(source, _scheduler);
-            _schedulerCRUDService.Delete(source);
-            Schedule previousValue;
-            Schedules.TryRemove(source.Id, out previousValue);
             return true;
         }
 
+        public static void DeleteMultipleFromDbAndInMemory(List<Guid> ids)
+        {
+            foreach (var id in ids)
+            {
+                if (Schedules.ContainsKey(id))
+                {
+                    var schedule = Schedules[id];
+                    _schedulerCRUDService.Delete(schedule);
+                    RemoveScheduleFromMemory(schedule);
+                    
+                    //job related
+                    _scheduleTaskService.DeleteAsync(schedule);
+                    ScheduleEventManager.scheduleEventService.UnscheduleJob(schedule, _scheduler);
+                   
+                }
+            }
+        }
 
+        public static void RemoveScheduleFromMemory(Schedule source)
+        {
+
+            Schedules.TryRemove(source.Id, out var removedSchedule);
+            scheduleResourcesMap.TryRemove(source.Id, out var removedScheduleMap);
+            scheduleWithAllDetailsDictionary.TryRemove(
+                source.Id,
+                out var removedScheduleWithAllDetails
+            );
+        }
+
+        public static void UpdateScheduleInMemory(Schedule source)
+        {
+            Schedules.TryGetValue(source.Id, out Schedule previousValue);
+            var isschedulesDictWithGuidUpdated = Schedules.TryUpdate(
+                source.Id,
+                source,
+                previousValue
+            );
+            var scheduleUpdated = Schedules.TryGetValue(source.Id, out var newValue);
+            SchedulAllDetails schedulAllDetails = new SchedulAllDetails();
+            schedulAllDetails.schedules = source;
+
+            schedulAllDetails.AttachedResources = scheduleWithAllDetailsDictionary[
+                source.Id
+            ].AttachedResources;
+            InsertAndUpdateValueInScheduleWithAllDetailsDictionary(schedulAllDetails);
+            
+        }
         // Update EnqueJob
         //public static void EnqueueJob(int ConfigurationdId, VideoSource videoSource)
         //{
         //    // Create Job Id and update in schedule dictionary
         //    CreateJobIdAndUpdateInScheduleDict(ConfigurationdId, videoSource);
         //}
-
         // create job Id
         //public static void CreateJobIdAndUpdateInScheduleDict(int ConfigurationdId, VideoSource videoSource)
         //{
@@ -235,16 +279,7 @@ namespace SchedulingModule.Managers
 
 
         
-        private static void UpdateScheduleDictionary(int ConfigurationdId, string JobId, Schedule schedules)
-            //VideoSource videoSource)
-        {
-            // add in dict
-            ScheduleDict.TryAdd(JobId, true);
-            // enqeue in dict jobs
-            //AddScheduleInHangFire(ConfigurationdId, JobId, schedules, videoSource);
-            //// add in database
-            //AddOrRemove("Add", JobId, schedules, ConfigurationdId);
-        }
+       
 
         // check configuration have another schedule or not if have remove
         //public static void CheckConfigurationIdHaveAnotherScheduleOrNotIfExistRemove(int ConfigurationId)

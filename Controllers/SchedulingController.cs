@@ -28,9 +28,8 @@ namespace SchedulingModule.Controllers
         [HttpGet]
         public IEnumerable<Schedule> GetAll()
         {
-            
-             
-            return ScheduleManager.Schedules.Values;
+            IEnumerable<Schedule> videosource = ScheduleManager.Schedules.Values;
+            return videosource;
         }
        
         [HttpGet("~/api/Schedules/GetAllResourceDetails")]
@@ -105,47 +104,49 @@ namespace SchedulingModule.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(Guid id, [FromBody] Schedule schedule)
+        public async Task<IActionResult> Put( [FromRoute] Guid id, [FromBody] Schedule schedule)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
             if (id != schedule.Id)
             {
                 return BadRequest();
             }
-
             try
             {
-                ScheduleManager.Update(schedule);
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                Log.Error(ex, ex.Message);
-                //if (!VideoSourceManager.VideoSources.ContainsKey(id))
-                //{
-                //    return NotFound();
-                //}
-                //else
-                //{
-                    throw;
-                //}
+                HttpContext.Request.Headers.TryGetValue("clientId", out StringValues clientId);
+                ScheduleManager.UpdateInDbandMemory(schedule);
+                SchedulAllDetails createdSchedulee =
+                    ScheduleManager.scheduleWithAllDetailsDictionary[schedule.Id];
+                var objectToSend = new Dictionary<string, dynamic>()
+                {
+                    {
+                        "scheduleAllDetailsList",
+                        new List<SchedulAllDetails>() { createdSchedulee }
+                    },
+                };
+                
+                await ScheduleManager.SendCrudDataToClient(
+                    CrudMethodType.Update,
+                    objectToSend
+                );
+                return Ok(schedule);
             }
             catch (Exception ex)
             {
                 Log.Error(ex, ex.Message);
                 return BadRequest(ex.Message);
             }
-
-            return Ok(schedule);
         }
 
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
+            StringValues clientId;
+            HttpContext.Request.Headers.TryGetValue("clientId", out clientId);
             if (!ScheduleManager.Schedules.ContainsKey(id))
             {
                 return NotFound();
@@ -153,31 +154,64 @@ namespace SchedulingModule.Controllers
             try
             {
                 var schedule = ScheduleManager.Schedules[id];
+                SchedulAllDetails scheduleWithAllDetails =
+                    ScheduleManager.scheduleWithAllDetailsDictionary[schedule.Id];
                 ScheduleManager.Delete(schedule);
+                var objectToSend = new Dictionary<string, dynamic>()
+                {
+                    {
+                        "scheduleAllDetailsList",
+                        new List<SchedulAllDetails>() { scheduleWithAllDetails }
+                    },
+                };
+                await ScheduleManager.SendCrudDataToClient(
+                    CrudMethodType.Delete,
+                    objectToSend
+                );
                 return Ok(schedule);
-               
-                //return Json(new { status = "error", message = "Schedule Deleted Failed its Attached to a Configuration" });
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 Log.Error(ex, ex.Message);
-                //if (!VideoSourceManager.VideoSources.ContainsKey(id))
-                //{
-                //    return NotFound();
-                //}
-                //else
-                //{
                 throw;
-                //}
             }
             catch (Exception ex)
             {
                 Log.Error(ex, ex.Message);
                 return BadRequest(ex.Message);
             }
-            //return Ok(schedule);
-
         }
+        
+        [HttpPut("DeleteMultiple")]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<Guid> ScheduleToBeDeleted)
+        {
+            
+            StringValues clientId;
+            HttpContext.Request.Headers.TryGetValue("clientId", out clientId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
+            List<SchedulAllDetails> scheduleAllDetailsList =
+                new List<SchedulAllDetails>();
+            foreach (var id in ScheduleToBeDeleted)
+            {
+                scheduleAllDetailsList.Add(
+                    ScheduleManager.scheduleWithAllDetailsDictionary[id]
+                );
+            }
+
+            ScheduleManager.DeleteMultipleFromDbAndInMemory(ScheduleToBeDeleted);
+            var objectToSend = new Dictionary<string, dynamic>()
+            {
+                { "scheduleAllDetailsList", scheduleAllDetailsList },
+            };
+            await ScheduleManager.SendCrudDataToClient(
+                CrudMethodType.Delete,
+                objectToSend
+            );
+            return Ok();
+        }
     }
 }
