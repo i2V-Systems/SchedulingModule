@@ -17,4 +17,31 @@
     <ProjectReference Include="..\CommonUtilityModule\CommonUtilityModule.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infastructure\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Core.cs" />
+    <Compile Remove="Core\**" />
+    <Compile Remove="Application\ScheduleStrategies\IJobStrategy.cs" />
+    <Compile Remove="ScheduleTypeEnum.cs" />
+    <Compile Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Core\**" />
+    <Content Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Core\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
 </Project>

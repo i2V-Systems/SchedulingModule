@@ -2,11 +2,9 @@
 using Coravel;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
-using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using SchedulingModule.Context;
-using SchedulingModule.Managers;
-using SchedulingModule.services;
+using SchedulingModule.Application.Managers;
+using SchedulingModule.Domain.Context;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
 namespace SchedulingModule
