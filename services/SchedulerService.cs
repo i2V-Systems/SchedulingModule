@@ -48,7 +48,10 @@ namespace SchedulingModule.services
         {
             schedulesResourceRepository.Add(map);
         }
-        
+        public List<ScheduleResourceMapping> GetAllResourceMapping()
+        {
+            return schedulesResourceRepository.GetAll();
+        }
         public void Delete(Schedule entity, string userName = "")
         {
             schedulesRepository.Delete(entity);

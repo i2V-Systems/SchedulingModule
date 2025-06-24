@@ -10,9 +10,15 @@ namespace SchedulingModule.services
     public class ScheduledTaskService
     {
         private Schedule _schedule;
-        public  IDispatcher _dispatcher;
-        public ScheduledTaskService(IDispatcher dispatcher) {}
-        public async Task ExecuteAsync(Schedule schedule,IScheduler scheduler)
+        public IDispatcher _dispatcher;
+        private TopicAwareDispatcher _topicAwareDispatcher;
+
+        public ScheduledTaskService(IDispatcher dispatcher,IServiceProvider serviceProvider)
+        {
+            _topicAwareDispatcher = new TopicAwareDispatcher(serviceProvider);
+        }
+
+        public async Task ExecuteAsync(Schedule schedule, IScheduler scheduler)
         {
             _schedule = schedule;
             var currentTime = DateTime.Now;
@@ -27,14 +33,23 @@ namespace SchedulingModule.services
             }
         }
 
-        public void HandleScheduledJob(Guid scheduleId,ScheduleEventType type)
+        public void HandleScheduledJob(Guid scheduleId, ScheduleEventType type)
         {
-            _dispatcher.Broadcast(new ScheduledReccuringEventTrigger(scheduleId));
+            if (ScheduleManager.scheduleResourcesMap.TryGetValue(scheduleId, out var resourceMapping))
+            { 
+                _topicAwareDispatcher.Broadcast(
+                    new ScheduleEventTrigger(scheduleId, type, resourceMapping.ResourceType)
+                );
+            }
         }
-        public async Task UpdateAsync(Schedule schedule) {}
-        public async Task DeleteAsync(Schedule schedule) {}
+
+        public async Task UpdateAsync(Schedule schedule)
+        {
+        }
+
+        public async Task DeleteAsync(Schedule schedule)
+        {
+        }
     }
+
 }
-    
-
-

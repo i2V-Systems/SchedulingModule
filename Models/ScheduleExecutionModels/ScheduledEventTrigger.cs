@@ -2,47 +2,19 @@
 
 namespace SchedulingModule.Models
 {
-    public class ScheduledStartEventTrigger : IEvent
+    public class ScheduleEventTrigger : IEvent
     {
-
-        public DateTime TriggeredAt { get; set; }
-        public Schedule schedule { get; set; }
-         
-
-        public ScheduledStartEventTrigger(Schedule _schedule)
+        public DateTime triggeredAt { get; set; }
+        public Guid scheduleId { get; set; }
+        public ScheduleEventType eventType { get; set; }
+        
+        public string eventTopic { get; set; }
+        public ScheduleEventTrigger(Guid id,ScheduleEventType type, string topic)
         {
-            TriggeredAt = DateTime.UtcNow;
-            schedule= _schedule;
+            triggeredAt = DateTime.UtcNow;
+            scheduleId= id;
+            eventType = type;
+            eventTopic = topic;
         }
     }
-    public class ScheduledEndEventTrigger : IEvent
-    {
-
-        public DateTime TriggeredAt { get; set; }
-        public Schedule schedule { get; set; }
-
-
-        public ScheduledEndEventTrigger(Schedule _schedule)
-        {
-            TriggeredAt = DateTime.UtcNow;
-            schedule = _schedule;
-        }
-    }
-    public class ScheduledReccuringEventTrigger : IEvent
-    {
-
-        public DateTime TriggeredAt { get; set; }
-        public Guid ScheduleId { get; set; }
-
-
-        public ScheduledReccuringEventTrigger(Guid scheduleId)
-        {
-            TriggeredAt = DateTime.UtcNow;
-            ScheduleId = scheduleId;
-            //schedule = _schedule;
-        }
-    }
-
-
-
 }

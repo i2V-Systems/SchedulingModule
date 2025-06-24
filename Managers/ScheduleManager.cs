@@ -29,7 +29,7 @@ namespace SchedulingModule.Managers
         private static  SchedulerService _schedulerCRUDService;
         
         // initialise
-        public static void Init( 
+        public static async Task  Init( 
              IConfiguration configuration,
              IScheduler scheduler,
              IDispatcher dispatcher,
@@ -51,6 +51,9 @@ namespace SchedulingModule.Managers
             {
                 Schedules.TryAdd(item.Id, item);
             }
+            await UpdateScheduleWithAllDetailsDictBySchedules(Schedules.Values);
+            updateScheduleResourceMapping();
+
         }
        
         public static Schedule Get(Guid id)
@@ -85,7 +88,7 @@ namespace SchedulingModule.Managers
             }
             catch (Exception ex)
             {
-                Log.Error("[VideoSourceManager][getAllDetailsOfVideoSource] : " + ex.Message);
+                Log.Error("[ScheduleManager][getAllDetailsOfVideoSource] : " + ex.Message);
                 return null;
             }
         }
@@ -99,6 +102,22 @@ namespace SchedulingModule.Managers
                 scheduleWithDetails.schedules = schedule;
 
                 InsertAndUpdateValueInScheduleWithAllDetailsDictionary(scheduleWithDetails);
+            }
+        }
+
+        private static void updateScheduleResourceMapping()
+        {
+            try
+            {
+                var resourceMapping =_schedulerCRUDService.GetAllResourceMapping();
+                foreach (var item in resourceMapping)
+                {
+                    scheduleResourcesMap.TryAdd(item.Id, item);
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Error("[ScheduleManager][getAllDetailsOfVideoSource] : " + ex.Message);
             }
         }
         public static void InsertAndUpdateValueInScheduleWithAllDetailsDictionary(
@@ -214,12 +233,10 @@ namespace SchedulingModule.Managers
             var scheduleUpdated = Schedules.TryGetValue(source.Id, out var newValue);
             SchedulAllDetails schedulAllDetails = new SchedulAllDetails();
             schedulAllDetails.schedules = source;
-
             schedulAllDetails.AttachedResources = scheduleWithAllDetailsDictionary[
                 source.Id
             ].AttachedResources;
             InsertAndUpdateValueInScheduleWithAllDetailsDictionary(schedulAllDetails);
-            
         }
         // Update EnqueJob
         //public static void EnqueueJob(int ConfigurationdId, VideoSource videoSource)
