@@ -48,12 +48,18 @@ namespace SchedulingModule.Application.Managers
             {
                 Schedules.TryAdd(schedule.Id, schedule);
             }
-
             await UpdateScheduleDetailsAsync(Schedules.Values);
             LoadScheduleResourceMapping();
-
+            executeLoadedTasks();
         }
-       
+
+        private static void executeLoadedTasks()
+        {
+            foreach (var item in Schedules)
+            {
+                _taskService.ExecuteAsync(item.Value, _scheduler);
+            }
+        }
         public static Schedule Get(Guid id) =>
             Schedules.TryGetValue(id, out var schedule) ? schedule : null;
 
@@ -117,7 +123,6 @@ namespace SchedulingModule.Application.Managers
             _crudService.Add(schedule);
             AddToMemory(schedule);
             _taskService.ExecuteAsync(schedule, _scheduler);
-
         }
         
         public static void AddToMemory(Schedule schedule)

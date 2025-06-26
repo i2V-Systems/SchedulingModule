@@ -15,6 +15,7 @@ public static class ScheduleEventManager
         scheduleEventService = ResolveService(serviceProvider, serviceName)
                                ?? throw new InvalidOperationException("Unable to resolve the scheduler task service.");
     }
+ 
     private static ISchedulerTaskService ResolveService(IServiceProvider serviceProvider, string serviceName)
     {
         var targetType = typeof(ISchedulerTaskService);

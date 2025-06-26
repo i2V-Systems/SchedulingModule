@@ -16,7 +16,7 @@ namespace SchedulingModule.Domain.Models
         public int? NoOfDays { get; set; }
         public List<string> StartDays { get; set; }
         
-        
+        public bool isEnabled { get; set; } 
 
 
         // Property to store StartDateTime in UTC and retrieve in local time
