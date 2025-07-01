@@ -1,21 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
+using SchedulingModule.Domain.Entities;
 using SchedulingModule.Domain.Enums;
-using SchedulingModule.Domain.Models;
 
 
-namespace SchedulingModule.Domain.Context
+namespace SchedulingModule.Application.Context
 {
-    public class SchedulingModuleDbContext : DbContext
+    public class ScheduleDbContext : DbContext
     {
-        public SchedulingModuleDbContext(DbContextOptions<SchedulingModuleDbContext> options)
+        public ScheduleDbContext(DbContextOptions<ScheduleDbContext> options)
             : base(options)
         {
         }
         //public DbSet<ActionData> ActionData { get; set; }
 
-        public DbSet<Schedule> Schedule { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ScheduleResourceMapping> ScheduleResourceMapping { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,7 +23,7 @@ namespace SchedulingModule.Domain.Context
             modelBuilder.Entity<Schedule>()
                 .Property(e => e.Type)
                 .HasConversion(
-                    new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleType>()
+                    new EnumToStringConverter<ScheduleType>()
                 );
          
 
@@ -31,14 +31,14 @@ namespace SchedulingModule.Domain.Context
             modelBuilder.Entity<Schedule>()
                 .Property(e => e.SubType)
                 .HasConversion(
-                    new EnumToStringConverter<ScheduleTypeEnum.Enum_ScheduleSubType>()
+                    new EnumToStringConverter<ScheduleSubType>()
                 );
             
             modelBuilder.Entity<Schedule>()
                 .Property(e => e.StartDays)
                 .HasConversion(
-                    v => JsonConvert.SerializeObject(v ?? new List<string>()),
-                    v => string.IsNullOrEmpty(v) ? new List<string>() : JsonConvert.DeserializeObject<List<string>>(v) ?? new List<string>()
+                    v => JsonConvert.SerializeObject(v ?? new List<Days>()),
+                    v => string.IsNullOrEmpty(v) ? new List<Days>() : JsonConvert.DeserializeObject<List<Days>>(v) ?? new List<Days>()
                 );
             
             modelBuilder

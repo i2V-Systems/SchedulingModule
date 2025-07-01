@@ -3,32 +3,31 @@ using CommonUtilityModule.CrudUtilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Managers;
-using SchedulingModule.Domain.Models;
 using SchedulingModule.Presentation.Models;
 using Serilog;
 
 namespace SchedulingModule.Presentation.Controllers
 {
-   
-
     [Route("api/[controller]")]
     [ApiController]
     //[LicenceValid]
     public  class SchedulingController : Controller
     {
-        
+        private readonly IScheduleManager _scheduleManager;
         private readonly ILogger<SchedulingController> _logger;
-        public SchedulingController(ILogger<SchedulingController> logger)
+        public SchedulingController(ILogger<SchedulingController> logger,IScheduleManager scheduleManager)
         {
             _logger = logger;
+            _scheduleManager = scheduleManager;
         }
 
         [HttpGet]
-        public IEnumerable<Schedule> GetAll()
+        public async Task<IEnumerable<ScheduleDto>> GetAll()
         {
-            IEnumerable<Schedule> videosource = ScheduleManager.Schedules.Values;
-            return videosource;
+            IEnumerable<ScheduleDto> schedules = await _scheduleManager.GetAllCachedSchedulesAsync();
+            return schedules;
         }
        
         [HttpGet("~/api/Schedules/GetAllResourceDetails")]
@@ -38,7 +37,7 @@ namespace SchedulingModule.Presentation.Controllers
             {
                 StringValues UserName;
                 HttpContext.Request.Headers.TryGetValue("Username", out UserName);
-                return Ok(await ScheduleManager.GetScheduleWithAllDetailsAsync(UserName));
+                return Ok(await _scheduleManager.GetScheduleWithAllDetailsAsync(UserName));
             }
             catch (Exception ex)
             {
@@ -48,7 +47,7 @@ namespace SchedulingModule.Presentation.Controllers
         }
         
         [HttpGet("{id}")]
-        public IActionResult Get([FromRoute] Guid id)
+        public async Task<IActionResult> Get([FromRoute] Guid id)
         {
             if (!ModelState.IsValid)
             {
@@ -56,11 +55,11 @@ namespace SchedulingModule.Presentation.Controllers
             }
             try
             {
-                if (!ScheduleManager.Schedules.ContainsKey(id))
+                if (!_scheduleManager.IsScheduleLoaded(id))
                 {
                     return NotFound();
                 }
-                return Ok(ScheduleManager.Get(id));
+                return Ok(await _scheduleManager.GetAsync(id));
             }
             catch (Exception ex)
             {
@@ -70,17 +69,15 @@ namespace SchedulingModule.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Schedule schedule)
+        public async Task<IActionResult> Create([FromBody] ScheduleDto schedule)
         {
             try
             {
                 HttpContext.Request.Headers.TryGetValue("clientId", out  StringValues clientId);
                 HttpContext.Request.Headers.TryGetValue("userid", out StringValues userid);
                 
-                ScheduleManager.Add(schedule,userid);
-                
-                SchedulAllDetails schedulesource =
-                    ScheduleManager.ScheduleDetailsMap[schedule.Id];
+                Guid scheduleId=  await _scheduleManager.CreateScheduleAsync(schedule,userid);
+                SchedulAllDetails schedulesource = await _scheduleManager.GetDetailedAsync(scheduleId);
                 var objectToSend = new Dictionary<string, dynamic>()
                 {
                     {
@@ -88,7 +85,7 @@ namespace SchedulingModule.Presentation.Controllers
                         new List<SchedulAllDetails>() { schedulesource }
                     }
                 };
-                await ScheduleManager.SendCrudDataToClientAsync(
+                await _scheduleManager.SendCrudDataToClientAsync(
                     CrudMethodType.Add,
                     objectToSend
                 );
@@ -103,7 +100,7 @@ namespace SchedulingModule.Presentation.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put( [FromRoute] Guid id, [FromBody] Schedule schedule)
+        public async Task<IActionResult> Update( [FromRoute] Guid id, [FromBody] ScheduleDto schedule)
         {
             if (!ModelState.IsValid)
             {
@@ -116,9 +113,8 @@ namespace SchedulingModule.Presentation.Controllers
             try
             {
                 HttpContext.Request.Headers.TryGetValue("clientId", out StringValues clientId);
-                ScheduleManager.UpdateInDbandMemory(schedule);
-                SchedulAllDetails createdSchedulee =
-                    ScheduleManager.ScheduleDetailsMap[schedule.Id];
+                await  _scheduleManager.UpdateScheduleAsync(schedule);
+                SchedulAllDetails createdSchedulee =  await  _scheduleManager.GetDetailedAsync(schedule.Id);
                 var objectToSend = new Dictionary<string, dynamic>()
                 {
                     {
@@ -127,7 +123,7 @@ namespace SchedulingModule.Presentation.Controllers
                     },
                 };
                 
-                await ScheduleManager.SendCrudDataToClientAsync(
+                await _scheduleManager.SendCrudDataToClientAsync(
                     CrudMethodType.Update,
                     objectToSend
                 );
@@ -146,16 +142,15 @@ namespace SchedulingModule.Presentation.Controllers
         {
             StringValues clientId;
             HttpContext.Request.Headers.TryGetValue("clientId", out clientId);
-            if (!ScheduleManager.Schedules.ContainsKey(id))
+            if (!_scheduleManager.IsScheduleLoaded(id))
             {
                 return NotFound();
             }
             try
             {
-                var schedule = ScheduleManager.Schedules[id];
-                SchedulAllDetails scheduleWithAllDetails =
-                    ScheduleManager.ScheduleDetailsMap[schedule.Id];
-                ScheduleManager.Delete(schedule);
+                var schedule = await _scheduleManager.GetScheduleFromCacheAsync(id);
+                SchedulAllDetails scheduleWithAllDetails = await  _scheduleManager.GetScheduleDetailsFromCacheAsync(id);
+                await _scheduleManager.DeleteScheduleAsync(id);
                 var objectToSend = new Dictionary<string, dynamic>()
                 {
                     {
@@ -163,7 +158,7 @@ namespace SchedulingModule.Presentation.Controllers
                         new List<SchedulAllDetails>() { scheduleWithAllDetails }
                     },
                 };
-                await ScheduleManager.SendCrudDataToClientAsync(
+                await _scheduleManager.SendCrudDataToClientAsync(
                     CrudMethodType.Delete,
                     objectToSend
                 );
@@ -196,17 +191,16 @@ namespace SchedulingModule.Presentation.Controllers
                 new List<SchedulAllDetails>();
             foreach (var id in ScheduleToBeDeleted)
             {
-                scheduleAllDetailsList.Add(
-                    ScheduleManager.ScheduleDetailsMap[id]
-                );
+               SchedulAllDetails scheduleDetailed= await  _scheduleManager.GetScheduleDetailsFromCacheAsync(id);
+               scheduleAllDetailsList.Add(scheduleDetailed);
             }
-
-            ScheduleManager.DeleteMultiple(ScheduleToBeDeleted);
+            
+            await _scheduleManager.DeleteMultipleSchedulesAsync(ScheduleToBeDeleted);
             var objectToSend = new Dictionary<string, dynamic>()
             {
                 { "scheduleAllDetailsList", scheduleAllDetailsList },
             };
-            await ScheduleManager.SendCrudDataToClientAsync(
+            await _scheduleManager.SendCrudDataToClientAsync(
                 CrudMethodType.Delete,
                 objectToSend
             );

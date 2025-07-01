@@ -4,7 +4,7 @@ using SchedulingModule.Application.Services;
 
 namespace SchedulingModule.Application.Managers;
 
-public static class ScheduleEventManager
+public  class ScheduleEventManager
 {
     public static ISchedulerTaskService scheduleEventService { get; private set; }
     internal static void Init(IServiceProvider serviceProvider)

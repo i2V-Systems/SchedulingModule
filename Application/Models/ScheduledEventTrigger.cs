@@ -1,5 +1,6 @@
 ﻿using Coravel.Events.Interfaces;
 using SchedulingModule.Application.Enums;
+using SchedulingModule.Domain.Enums;
 
 namespace SchedulingModule.Application.Models
 {
@@ -10,12 +11,12 @@ namespace SchedulingModule.Application.Models
         public ScheduleEventType eventType { get; set; }
         
         public string eventTopic { get; set; }
-        public ScheduleEventTrigger(Guid id,ScheduleEventType type, string topic)
+        public ScheduleEventTrigger(Guid id,ScheduleEventType type, Resources topic)
         {
             triggeredAt = DateTime.UtcNow;
             scheduleId= id;
             eventType = type;
-            eventTopic = topic;
+            eventTopic = topic.ToString();
         }
     }
 }

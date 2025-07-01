@@ -41,7 +41,7 @@ public class ScheduleJobStrategy
                 }
         }
         
-        public IScheduleJobStrategy GetStrategy(ScheduleTypeEnum.Enum_ScheduleType scheduleType)
+        public IScheduleJobStrategy GetStrategy(ScheduleType scheduleType)
         {
                 var key = CreateCacheKey(scheduleType);
                 // First try exact match from instance cache
@@ -87,7 +87,7 @@ public class ScheduleJobStrategy
                 }
         }
         
-        private static string CreateCacheKey(ScheduleTypeEnum.Enum_ScheduleType scheduleType)
+        private static string CreateCacheKey(ScheduleType scheduleType)
         {
                 return  scheduleType.ToString()+"ScheduleStrategy";
         }

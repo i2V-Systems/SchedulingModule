@@ -2,9 +2,12 @@
 using Coravel;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using SchedulingModule.Application.Context;
+using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Managers;
-using SchedulingModule.Domain.Context;
+using SchedulingModule.Infrastructure.Repositories;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
 namespace SchedulingModule
@@ -18,6 +21,10 @@ namespace SchedulingModule
             configuration = _configuration;
             var scheduleAssembly = Assembly.Load("SchedulingModule");
             services.AddMvc().AddApplicationPart(scheduleAssembly).AddControllersAsServices();
+            
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+            
+            
             //coravel services
             services.AddScheduler();
             services.AddEvents();
@@ -28,7 +35,7 @@ namespace SchedulingModule
             services.AddServicesOfType<ISingletonService>();
             services.AddServicesWithAttributeOfType<SingletonServiceAttribute>();
             
-            services.AddDbContext<SchedulingModuleDbContext>(
+            services.AddDbContext<ScheduleDbContext>(
                 options =>
                 {
                     options
@@ -43,6 +50,12 @@ namespace SchedulingModule
                 },
                 ServiceLifetime.Transient
             );
+           
+            services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IScheduleManager, ScheduleManager>();
+            
+            
             return services;
 
         }
@@ -57,7 +70,8 @@ namespace SchedulingModule
             {
                 Scheduler = scheduler;
             });
-            ScheduleManager.Init(configuration, Scheduler,dispatcher,serviceProvider);
+            var scheduleManager= new ScheduleManager(configuration, Scheduler,dispatcher,serviceProvider);
+             scheduleManager.InitializeAsync();
         }
 
         public static T GetRequiredService<T>()

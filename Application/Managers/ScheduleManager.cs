@@ -4,33 +4,32 @@ using CommonUtilityModule.CrudUtilities;
 using CommonUtilityModule.Manager;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
+using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Services;
-using SchedulingModule.Domain.Models;
+using SchedulingModule.Domain.Entities;
 using SchedulingModule.Presentation.Models;
 using Serilog;
 
 namespace SchedulingModule.Application.Managers
 {
-    public static class ScheduleManager
+    public class ScheduleManager :IScheduleManager
     {
-        private static  IServiceProvider _serviceProvider;
-        private static  IScheduler _scheduler;
-        private static  IDispatcher _dispatcher;
-        private static  IConfiguration _configuration;
+        private readonly  IServiceProvider _serviceProvider;
+        private readonly  IScheduler _scheduler;
+        private readonly  IDispatcher _dispatcher;
+        private readonly  IConfiguration _configuration;
         
-        private static  ScheduledTaskService _taskService;
-        private static  SchedulerService _crudService;
+        private readonly  ScheduledTaskService _taskService;
+        private readonly  SchedulerService _crudService;
         
-        public static ConcurrentDictionary<Guid, Schedule> Schedules { get; } = new();
-        public static ConcurrentDictionary<Guid, ScheduleResourceMapping> ScheduleResourcesMap { get; } = new();
-        public static ConcurrentDictionary<Guid, SchedulAllDetails> ScheduleDetailsMap { get; } = new();
+        public  ConcurrentDictionary<Guid, ScheduleDto> Schedules { get; } = new();
+        public  ConcurrentDictionary<Guid, ScheduleResourceDto> ScheduleResourcesMap { get; } = new();
+        public  ConcurrentDictionary<Guid, SchedulAllDetails> ScheduleDetailsMap { get; } = new();
         
-        public static async Task  Init( 
-             IConfiguration configuration,
-             IScheduler scheduler,
-             IDispatcher dispatcher,
-             IServiceProvider serviceProvider
-        )
+        public ScheduleManager(IConfiguration configuration,
+            IScheduler scheduler,
+            IDispatcher dispatcher,
+            IServiceProvider serviceProvider)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
@@ -39,31 +38,120 @@ namespace SchedulingModule.Application.Managers
             
             _taskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
             _crudService = ScheduleStartup.GetRequiredService<SchedulerService>();
-            
-            _taskService._dispatcher = _dispatcher;
-            
-            ScheduleEventManager.Init(_serviceProvider);
-            
-            foreach (var schedule in _crudService.GetAllSchedules())
+        }
+        
+        // Query methods implementation
+        public async Task<IEnumerable<ScheduleDto>> GetSchedulesByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return ids.Where(id => Schedules.ContainsKey(id))
+                .Select(id => Schedules[id])
+                .ToList();
+        }
+
+        public async Task<ScheduleDto> GetScheduleFromCacheAsync(Guid id)
+        {
+            return Schedules.TryGetValue(id, out var schedule) ? schedule : null;
+        }
+
+        public IEnumerable<ScheduleResourceDto> GetResourcesByScheduleId(Guid scheduleId)
+        {
+            return ScheduleResourcesMap.Values
+                .Where(r => r.ScheduleId == scheduleId)
+                .ToList();
+        }
+
+        public async Task<SchedulAllDetails> GetScheduleDetailsFromCacheAsync(Guid id)
+        {
+            return ScheduleDetailsMap.TryGetValue(id, out var details) ? details : null;
+        }
+
+        
+        // Cache status methods
+        public bool IsScheduleLoaded(Guid scheduleId)
+        {
+            return Schedules.ContainsKey(scheduleId);
+        }
+
+        public bool IsResourceLoaded(Guid scheduleId)
+        {
+            return ScheduleResourcesMap.ContainsKey(scheduleId);
+        }
+
+        public int GetLoadedScheduleCount()
+        {
+            return Schedules.Count;
+        }
+
+        public int GetLoadedResourceCount()
+        {
+            return ScheduleResourcesMap.Count;
+        }
+
+        public async Task<IEnumerable<ScheduleDto>> GetAllCachedSchedulesAsync()
+        {
+            return Schedules.Values.ToList();
+        }
+
+        public async Task<IEnumerable<ScheduleResourceDto>> GetAllCachedResourcesAsync()
+        {
+            return ScheduleResourcesMap.Values.ToList();
+        }
+
+        public async Task RefreshCacheAsync()
+        {
+            // Clear existing cache
+            Schedules.Clear();
+            ScheduleResourcesMap.Clear();
+            ScheduleDetailsMap.Clear();
+
+            // Reload from database
+            await InitializeAsync();
+        }
+        
+        public  async Task  InitializeAsync()
+        {
+            ScheduleEventManager.Init(_serviceProvider);//TODO 
+            var allSchedules = await _crudService.GetAllAsync();
+            foreach (var schedule in  allSchedules)
             {
                 Schedules.TryAdd(schedule.Id, schedule);
             }
             await UpdateScheduleDetailsAsync(Schedules.Values);
-            LoadScheduleResourceMapping();
+            await LoadScheduleResourceMapping();
             executeLoadedTasks();
         }
-
-        private static void executeLoadedTasks()
-        {
-            foreach (var item in Schedules)
-            {
-                _taskService.ExecuteAsync(item.Value, _scheduler);
-            }
-        }
-        public static Schedule Get(Guid id) =>
+        
+        public  async Task<ScheduleDto> GetAsync(Guid id) =>
             Schedules.TryGetValue(id, out var schedule) ? schedule : null;
 
-        public static async Task<IEnumerable<SchedulAllDetails>> GetScheduleWithAllDetailsAsync(
+        public async Task<SchedulAllDetails> GetDetailedAsync(Guid id)
+        {
+           return  ScheduleDetailsMap.TryGetValue(id, out var schedule) ? schedule : null;
+        }
+      
+        public async Task<Guid> CreateScheduleAsync(ScheduleDto schedule, string userId = null) {
+            var id= await _crudService.AddAsync(schedule);
+            AddToMemory(id,schedule);
+            await  _taskService.ExecuteAsync(schedule, _scheduler);
+            return id;
+        }
+        
+        public async Task UpdateScheduleAsync(ScheduleDto schedule)
+        {
+            await _crudService.UpdateAsync(schedule);
+            UpdateInMemory(schedule);
+            _taskService.UpdateAsync(schedule);
+        }
+        public async Task<bool> DeleteScheduleAsync(Guid id)
+        {
+            await  _crudService.DeleteAsync(id);
+            RemoveFromMemory(id);
+            _taskService.DeleteAsync(id);
+            ScheduleEventManager.scheduleEventService.UnscheduleJob(id, _scheduler);
+            return true;
+        }
+        
+        public  async Task<IEnumerable<SchedulAllDetails>> GetScheduleWithAllDetailsAsync(
             string userName
         )
         {
@@ -83,7 +171,57 @@ namespace SchedulingModule.Application.Managers
                 return null;
             }
         }
-        private static async Task UpdateScheduleDetailsAsync(IEnumerable<Schedule> schedules)
+
+        public async Task<IEnumerable<ScheduleDto>> GetAllSchedulesAsync()
+        {
+            try
+            {
+                if (ScheduleDetailsMap.IsEmpty)
+                {
+                    await UpdateScheduleDetailsAsync(Schedules.Values);
+                }
+                return Schedules.Values;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[ScheduleManager][GetScheduleWithAllDetails] : {Message}", ex.Message);
+                return null;
+            }
+        }
+        
+        public async Task DeleteMultipleSchedulesAsync(IEnumerable<Guid> ids)
+        {
+            foreach (var id in ids)
+            {
+                if (Schedules.TryGetValue(id, out var schedule))
+                {
+                    await  _crudService.DeleteAsync(id);
+                    RemoveFromMemory(id);
+                    _taskService.DeleteAsync(id);
+                    ScheduleEventManager.scheduleEventService.UnscheduleJob(id, _scheduler);
+                }
+            }
+        }
+
+        public async Task SendCrudDataToClientAsync(
+            CrudMethodType method,
+            Dictionary<string, dynamic> resources,
+            List<string>? skipUserIds  = null,
+            List<string>? targetUserIds  = null
+        )
+        {
+            await CrudManager.SendCrudDataToClient(
+                CrudRelatedEntity.Schedule,
+                method,
+                resources,
+                skipUserIds,
+                targetUserIds
+            );
+        }
+
+        
+        
+        private  async Task UpdateScheduleDetailsAsync(IEnumerable<ScheduleDto> schedules)
         {
             foreach (var schedule in schedules)
             {
@@ -93,11 +231,12 @@ namespace SchedulingModule.Application.Managers
             await Task.CompletedTask;
         }
 
-        private static void LoadScheduleResourceMapping()
+        private async Task LoadScheduleResourceMapping()
         {
             try
             {
-                foreach (var map in _crudService.GetAllResourceMapping())
+                var allDetails =await  _crudService.GetAllResourceMappingAsync();
+                foreach (var map in allDetails)
                 {
                     ScheduleResourcesMap.TryAdd(map.Id, map);
                 }
@@ -107,7 +246,7 @@ namespace SchedulingModule.Application.Managers
                 Log.Error("[ScheduleManager][LoadScheduleResourceMapping] : {Message}", ex.Message);
             }
         }
-        public static void AddOrUpdateScheduleDetails(SchedulAllDetails details)
+        public  void AddOrUpdateScheduleDetails(SchedulAllDetails details)
         {
             try
             {
@@ -119,63 +258,9 @@ namespace SchedulingModule.Application.Managers
             }
         }
            
-        public static void Add(Schedule schedule, string userId = null) {
-            _crudService.Add(schedule);
-            AddToMemory(schedule);
-            _taskService.ExecuteAsync(schedule, _scheduler);
-        }
         
-        public static void AddToMemory(Schedule schedule)
-        {
-            Schedules.TryAdd(schedule.Id, schedule);
-            AddOrUpdateScheduleDetails(new SchedulAllDetails { schedules = schedule });
-        }
-
-        public static void AddScheduleResourceMap(ScheduleResourceMapping map)
-        {  
-            _crudService.AddResourceMapping(map);
-            ScheduleResourcesMap.TryAdd(map.ScheduleId, map);
-        }
-        
-        public static void UpdateInDbandMemory(Schedule schedule)
-        {
-          
-            _crudService.Update(schedule);
-            UpdateInMemory(schedule);
-            _taskService.UpdateAsync(schedule);
-        }
-        
-        public static bool Delete(Schedule schedule)
-        {
-            _crudService.Delete(schedule);
-            RemoveFromMemory(schedule);
-            _taskService.DeleteAsync(schedule);
-            ScheduleEventManager.scheduleEventService.UnscheduleJob(schedule, _scheduler);
-            return true;
-        }
-        
-        public static void DeleteMultiple(IEnumerable<Guid> ids)
-        {
-            foreach (var id in ids)
-            {
-                if (Schedules.TryGetValue(id, out var schedule))
-                {
-                    _crudService.Delete(schedule);
-                    RemoveFromMemory(schedule);
-                    _taskService.DeleteAsync(schedule);
-                    ScheduleEventManager.scheduleEventService.UnscheduleJob(schedule, _scheduler);
-                }
-            }
-        }
-        
-        public static void RemoveFromMemory(Schedule schedule)
-        {
-            Schedules.TryRemove(schedule.Id, out _);
-            ScheduleResourcesMap.TryRemove(schedule.Id, out _);
-            ScheduleDetailsMap.TryRemove(schedule.Id, out _);
-        }
-        
-        public static void UpdateInMemory(Schedule schedule)
+        //memory functions 
+        public  void UpdateInMemory(ScheduleDto schedule)
         {
             if (Schedules.TryGetValue(schedule.Id, out var existing))
             {
@@ -190,21 +275,32 @@ namespace SchedulingModule.Application.Managers
                 AddOrUpdateScheduleDetails(updatedDetails);
             }
         }
-        
-        public static async Task SendCrudDataToClientAsync(
-            CrudMethodType method,
-            Dictionary<string, dynamic> resources,
-            List<string>? skipUserIds  = null,
-            List<string>? targetUserIds  = null
-        )
+        public  void RemoveFromMemory(Guid id)
         {
-            await CrudManager.SendCrudDataToClient(
-                CrudRelatedEntity.Schedule,
-                method,
-                resources,
-                skipUserIds,
-                targetUserIds
-            );
+            Schedules.TryRemove(id, out _);
+            ScheduleResourcesMap.TryRemove(id, out _);
+            ScheduleDetailsMap.TryRemove(id, out _);
+        }
+
+      
+        public  void AddToMemory(Guid id,ScheduleDto schedule)
+        {
+            Schedules.TryAdd(id, schedule);
+            AddOrUpdateScheduleDetails(new SchedulAllDetails { schedules = schedule });
+        }
+
+        public async Task AddScheduleResourceMap(ScheduleResourceDto map)
+        {  
+            await _crudService.AddResourceMappingAsync(map);
+            ScheduleResourcesMap.TryAdd(map.ScheduleId, map);
+        }
+        
+        private  void executeLoadedTasks()
+        {
+            foreach (var item in Schedules)
+            {
+                _taskService.ExecuteAsync(item.Value, _scheduler);
+            }
         }
     }
 }

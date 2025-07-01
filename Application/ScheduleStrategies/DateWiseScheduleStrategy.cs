@@ -1,26 +1,27 @@
 using Coravel.Scheduling.Schedule.Interfaces;
+using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Enums;
 using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Models;
 using SchedulingModule.Application.Services;
+using SchedulingModule.Domain.Entities;
 using SchedulingModule.Domain.Enums;
-using SchedulingModule.Domain.Models;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
 namespace SchedulingModule.Application.ScheduleStrategies;
 
 [ScopedService]
-[ScheduleStrategy(ScheduleTypeEnum.Enum_ScheduleType.DateWise)]
+[ScheduleStrategy(ScheduleType.DateWise)]
 public class DateWiseScheduleStrategy : IScheduleJobStrategy
 {
-    public ScheduleTypeInfo SupportedType => new(ScheduleTypeEnum.Enum_ScheduleType.DateWise, name: "Date-wise Schedule", description: "Executes tasks on specific dates");
+    public ScheduleTypeInfo SupportedType => new(ScheduleType.DateWise, name: "Date-wise Schedule", description: "Executes tasks on specific dates");
 
-    public bool CanHandle(ScheduleTypeEnum.Enum_ScheduleType scheduleType)
+    public bool CanHandle(ScheduleType scheduleType)
     {
-        return scheduleType == ScheduleTypeEnum.Enum_ScheduleType.DateWise;
+        return scheduleType == ScheduleType.DateWise;
     }
 
-    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, Schedule schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         var startTime = schedule.StartDateTime;
         var endTime = schedule.EndDateTime;
