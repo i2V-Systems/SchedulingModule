@@ -3,6 +3,7 @@ using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Enums;
 using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Models;
+using SchedulingModule.Application.Scheduler;
 using SchedulingModule.Application.Services;
 using SchedulingModule.Domain.Entities;
 using SchedulingModule.Domain.Enums;
@@ -20,7 +21,7 @@ public class CustomScheduleStrategy : IScheduleJobStrategy
         return scheduleType == ScheduleType.Custom;
     }
 
-    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         // Custom scheduling logic here
         Console.WriteLine($"Executing custom schedule for {schedule.Id}");

@@ -11,6 +11,8 @@
     <PackageReference Include="Coravel" Version="5.0.4" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.33" />
+    <PackageReference Include="linq2db" Version="3.6.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.11" />
     <PackageReference Include="Npgsql" Version="7.0.4" />
     <PackageReference Include="Riok.Mapperly" Version="4.3.0-next.2" />

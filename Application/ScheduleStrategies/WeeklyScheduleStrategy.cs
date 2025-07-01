@@ -3,6 +3,7 @@ using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Enums;
 using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Models;
+using SchedulingModule.Application.Scheduler;
 using SchedulingModule.Application.Services;
 using SchedulingModule.Domain.Entities;
 using SchedulingModule.Domain.Enums;
@@ -20,7 +21,7 @@ public class WeeklyScheduleStrategy : IScheduleJobStrategy
         return scheduleType ==ScheduleType.Weekly;
     }
 
-    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         var scheduledTask = schedule.SubType switch
         {
@@ -33,64 +34,69 @@ public class WeeklyScheduleStrategy : IScheduleJobStrategy
         return Task.CompletedTask;
     }
 
-    private Action ScheduleSelectedDays(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    private Action ScheduleSelectedDays(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         return () =>
         {
             var startCronJob = CronExpressionBuilder.BuildCronExpression(schedule.StartDays, schedule.StartDateTime);
             var endCronJob = CronExpressionBuilder.BuildCronExpression(schedule.StartDays, schedule.EndDateTime);
 
-            scheduler.Schedule(() => eventExecutor.ExecuteStartEvent(taskToPerform, schedule))
-                .Cron(startCronJob)
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_start");
+            scheduler.ScheduleSelectedDays(
+                schedule.Id+ nameof(jobIds._start),
+                () => eventExecutor.ExecuteStartEvent(taskToPerform, schedule),
+                schedule.StartDateTime.Hour,
+                schedule.StartDateTime.Minute,
+                startCronJob);
+            
+            
+            scheduler.ScheduleSelectedDays(
+                schedule.Id+ nameof(jobIds._end),
+                () => eventExecutor.ExecuteEndEvent(taskToPerform, schedule,scheduler),
+                schedule.EndDateTime.Hour,
+                schedule.EndDateTime.Minute,
+                startCronJob);
 
-            scheduler.Schedule(() => eventExecutor.ExecuteEndEvent(taskToPerform, schedule, scheduler))
-                .Cron(endCronJob)
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_end");
+          
         };
     }
 
-    private Action ScheduleWeekdays(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    private Action ScheduleWeekdays(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         return () =>
         {
             var startTime = schedule.StartDateTime;
             var endTime = schedule.EndDateTime;
-
-            scheduler.Schedule(() => eventExecutor.ExecuteStartEvent(taskToPerform, schedule))
-                .DailyAt(startTime.Hour, startTime.Minute)
-                .Weekday()
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_weekday_start");
-
-            scheduler.Schedule(() => eventExecutor.ExecuteEndEvent(taskToPerform, schedule, scheduler))
-                .DailyAt(endTime.Hour, endTime.Minute)
-                .Weekday()
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_weekday_end");
+            scheduler.ScheduleWeekDays(
+                schedule.Id+ nameof(jobIds._weekday_start),
+                () => eventExecutor.ExecuteStartEvent(taskToPerform, schedule),
+                startTime.Hour,
+                startTime.Minute);
+            
+            scheduler.ScheduleWeekDays(
+                schedule.Id+ nameof(jobIds._weekday_end),
+                () => eventExecutor.ExecuteEndEvent(taskToPerform, schedule,scheduler),
+                endTime.Hour,
+                endTime.Minute);
         };
     }
 
-    private Action ScheduleWeekends(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    private Action ScheduleWeekends(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         return () =>
         {
             var startTime = schedule.StartDateTime;
             var endTime = schedule.EndDateTime;
-
-            scheduler.Schedule(() => eventExecutor.ExecuteStartEvent(taskToPerform, schedule))
-                .DailyAt(startTime.Hour, startTime.Minute)
-                .Weekend()
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_weekend_start");
-
-            scheduler.Schedule(() => eventExecutor.ExecuteEndEvent(taskToPerform, schedule, scheduler))
-                .DailyAt(endTime.Hour, endTime.Minute)
-                .Weekend()
-                .Zoned(TimeZoneInfo.Local)
-                .PreventOverlapping($"{schedule.Id}_weekend_end");
+            scheduler.ScheduleWeekDays(
+                schedule.Id+ nameof(jobIds._weekend_start),
+                () => eventExecutor.ExecuteStartEvent(taskToPerform, schedule),
+                startTime.Hour,
+                startTime.Minute);
+            
+            scheduler.ScheduleWeekDays(
+                schedule.Id+ nameof(jobIds._weekend_end),
+                () => eventExecutor.ExecuteEndEvent(taskToPerform, schedule,scheduler),
+                endTime.Hour,
+                endTime.Minute);
         };
     }
 }

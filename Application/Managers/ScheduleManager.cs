@@ -5,6 +5,8 @@ using CommonUtilityModule.Manager;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using SchedulingModule.Application.DTOs;
+using SchedulingModule.Application.Scheduler;
+using SchedulingModule.Application.ScheduleStrategies;
 using SchedulingModule.Application.Services;
 using SchedulingModule.Domain.Entities;
 using SchedulingModule.Presentation.Models;
@@ -15,7 +17,7 @@ namespace SchedulingModule.Application.Managers
     public class ScheduleManager :IScheduleManager
     {
         private readonly  IServiceProvider _serviceProvider;
-        private readonly  IScheduler _scheduler;
+        private readonly  IUnifiedScheduler _scheduler;
         private readonly  IDispatcher _dispatcher;
         private readonly  IConfiguration _configuration;
         
@@ -27,7 +29,7 @@ namespace SchedulingModule.Application.Managers
         public  ConcurrentDictionary<Guid, SchedulAllDetails> ScheduleDetailsMap { get; } = new();
         
         public ScheduleManager(IConfiguration configuration,
-            IScheduler scheduler,
+            IUnifiedScheduler scheduler,
             IDispatcher dispatcher,
             IServiceProvider serviceProvider)
         {
@@ -38,6 +40,8 @@ namespace SchedulingModule.Application.Managers
             
             _taskService = ScheduleStartup.GetRequiredService<ScheduledTaskService>();
             _crudService = ScheduleStartup.GetRequiredService<SchedulerService>();
+            
+            InitializeAsync();
         }
         
         // Query methods implementation
@@ -108,7 +112,7 @@ namespace SchedulingModule.Application.Managers
             await InitializeAsync();
         }
         
-        public  async Task  InitializeAsync()
+        public async Task InitializeAsync()
         {
             ScheduleEventManager.Init(_serviceProvider);//TODO 
             var allSchedules = await _crudService.GetAllAsync();

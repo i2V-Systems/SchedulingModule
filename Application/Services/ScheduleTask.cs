@@ -4,6 +4,8 @@ using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Enums;
 using SchedulingModule.Application.Managers;
 using SchedulingModule.Application.Models;
+using SchedulingModule.Application.Scheduler;
+using SchedulingModule.Application.ScheduleStrategies;
 using SchedulingModule.Domain.Entities;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
@@ -26,7 +28,7 @@ namespace SchedulingModule.Application.Services
             
         }
 
-        public async Task ExecuteAsync(ScheduleDto schedule, IScheduler scheduler)
+        public async Task ExecuteAsync(ScheduleDto schedule, IUnifiedScheduler scheduler)
         {
             _schedule = schedule;
             

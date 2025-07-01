@@ -3,6 +3,7 @@ using SchedulingModule.Application.DTOs;
 using SchedulingModule.Application.Enums;
 using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Models;
+using SchedulingModule.Application.Scheduler;
 using SchedulingModule.Application.Services;
 using SchedulingModule.Domain.Entities;
 using SchedulingModule.Domain.Enums;
@@ -22,7 +23,7 @@ public class DailyScheduleStrategy : IScheduleJobStrategy
         return scheduleType == ScheduleType.Daily;
     }
 
-    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    public Task ScheduleJob(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         if (schedule.SubType == ScheduleSubType.Every)
         {
@@ -35,22 +36,24 @@ public class DailyScheduleStrategy : IScheduleJobStrategy
         return Task.CompletedTask;
     }
 
-    private void ScheduleStartAndEndEvents(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler,ISchedulerTaskService eventExecutor)
+    private void ScheduleStartAndEndEvents(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler,ISchedulerTaskService eventExecutor)
     {
         var startTime = schedule.StartDateTime;
         var endTime = schedule.EndDateTime;
-
-        scheduler.Schedule(() => eventExecutor.ExecuteStartEvent(taskToPerform, schedule))
-            .DailyAt(startTime.Hour, startTime.Minute)
-            .Zoned(TimeZoneInfo.Local)
-            .PreventOverlapping($"{schedule.Id}_start");
         
-        scheduler.Schedule(() => eventExecutor.ExecuteEndEvent(taskToPerform, schedule, scheduler))
-            .DailyAt(endTime.Hour, endTime.Minute)
-            .Zoned(TimeZoneInfo.Local)
-            .PreventOverlapping($"{schedule.Id}_end");
+        scheduler.ScheduleDaily(
+            schedule.Id+ nameof(jobIds._start),
+            () => eventExecutor.ExecuteStartEvent(taskToPerform, schedule),
+            startTime.Hour,
+            startTime.Minute);
+        
+        scheduler.ScheduleDaily(
+            schedule.Id+ nameof(jobIds._end),
+            () => eventExecutor.ExecuteEndEvent(taskToPerform, schedule, scheduler),
+            endTime.Hour,
+            endTime.Minute);
     }
-    private void ScheduleStartAndEndEventsEvery(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IScheduler scheduler, ISchedulerTaskService eventExecutor)
+    private void ScheduleStartAndEndEventsEvery(Action<Guid, ScheduleEventType> taskToPerform, ScheduleDto schedule, IUnifiedScheduler scheduler, ISchedulerTaskService eventExecutor)
     {
         // Specialized logic for "every N weeks"
         Console.WriteLine($"Executing weekly every N days schedule for {schedule.Id}");
