@@ -10,10 +10,10 @@ public interface IScheduleManager
         Task InitializeAsync();
         
         // Query methods for dictionary access
-        Task<IEnumerable<ScheduleDto>> GetSchedulesByIdsAsync(IEnumerable<Guid> ids);
-        Task<ScheduleDto> GetScheduleFromCacheAsync(Guid id);
+        IEnumerable<ScheduleDto> GetSchedulesByIds(IEnumerable<Guid> ids);
+        ScheduleDto GetScheduleFromCache(Guid id);
         IEnumerable<ScheduleResourceDto> GetResourcesByScheduleId(Guid scheduleId);
-        Task<SchedulAllDetails> GetScheduleDetailsFromCacheAsync(Guid id);
+        SchedulAllDetails GetScheduleDetailsFromCache(Guid id);
         
         // Cache status methods
         bool IsScheduleLoaded(Guid scheduleId);
@@ -22,20 +22,20 @@ public interface IScheduleManager
         int GetLoadedResourceCount();
         
         // Bulk cache operations
-        Task<IEnumerable<ScheduleDto>> GetAllCachedSchedulesAsync();
-        Task<IEnumerable<ScheduleResourceDto>> GetAllCachedResourcesAsync();
+        IEnumerable<ScheduleDto> GetAllCachedSchedules();
+        IEnumerable<ScheduleResourceDto> GetAllCachedResources();
         Task RefreshCacheAsync();
         
         // Core CRUD operations
-        Task<ScheduleDto> GetAsync(Guid id);
-        Task<SchedulAllDetails> GetDetailedAsync(Guid id);
+        ScheduleDto Get(Guid id);
+        SchedulAllDetails GetDetailed(Guid id);
         Task<Guid> CreateScheduleAsync(ScheduleDto dto, string userId = null);
         Task UpdateScheduleAsync(ScheduleDto dto);
         Task<bool> DeleteScheduleAsync(Guid id);
     
         // Complex queries
-        Task<IEnumerable<SchedulAllDetails>> GetScheduleWithAllDetailsAsync(string userName);
-        Task<IEnumerable<ScheduleDto>> GetAllSchedulesAsync();
+        IEnumerable<SchedulAllDetails> GetScheduleWithAllDetails(string userName);
+        IEnumerable<ScheduleDto> GetAllSchedules();
         // Resource mapping operations
         Task AddScheduleResourceMap(ScheduleResourceDto map); // Fixed type
     

@@ -3,11 +3,13 @@ using Coravel;
 using Coravel.Events.Interfaces;
 using Coravel.Scheduling.Schedule.Interfaces;
 using Hangfire;
+using Hangfire.PostgreSql;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SchedulingModule.Application.Context;
 using SchedulingModule.Application.Interfaces;
 using SchedulingModule.Application.Managers;
+using SchedulingModule.Application.Scheduler;
 using SchedulingModule.Application.ScheduleStrategies;
 using SchedulingModule.Infrastructure.Repositories;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
@@ -72,7 +74,6 @@ namespace SchedulingModule
         public static void Start(IServiceProvider serviceProvider, IApplicationBuilder app,IDispatcher dispatcher)
         {
             ServiceProvider = serviceProvider;
-            var provider = app.ApplicationServices;
             switch (CurrentSchedulerType)
             {
                 case SchedulerType.Coravel:
@@ -102,7 +103,6 @@ namespace SchedulingModule
             IDispatcher? dispatcher)
         {
             var provider = app.ApplicationServices;
-            IScheduler Scheduler;
             provider.UseScheduler(scheduler =>
             {
                 IUnifiedScheduler UnifiedScheduler = new CoravelUnifiedScheduler(scheduler);
@@ -140,6 +140,7 @@ namespace SchedulingModule
 
         private static void ConfigureCoravel(IServiceCollection services)
         {
+            CurrentSchedulerType = SchedulerType.Coravel;
             services.AddScheduler();
             services.AddEvents();
             services.AddSingleton<IUnifiedScheduler, CoravelUnifiedScheduler>();
@@ -147,14 +148,12 @@ namespace SchedulingModule
 
         private static void ConfigureHangfire(IServiceCollection services,IConfiguration configuration)
         {
-            services.AddHangfire(configuration => configuration
-                .SetDataCompatibilityLevel(CompatibilityLevel.Version_110)
-                .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
+            CurrentSchedulerType = SchedulerType.Hangfire;
+            services.AddHangfire(config => config
+                .UsePostgreSqlStorage(configuration.GetConnectionString("analytic"))
                );
             services.AddHangfireServer();
+            services.AddSingleton<IUnifiedScheduler, HangfireUnifiedScheduler>();
         }
-    
     }
-    
 }

@@ -45,14 +45,14 @@ namespace SchedulingModule.Application.Managers
         }
         
         // Query methods implementation
-        public async Task<IEnumerable<ScheduleDto>> GetSchedulesByIdsAsync(IEnumerable<Guid> ids)
+        public IEnumerable<ScheduleDto> GetSchedulesByIds(IEnumerable<Guid> ids)
         {
             return ids.Where(id => Schedules.ContainsKey(id))
                 .Select(id => Schedules[id])
                 .ToList();
         }
 
-        public async Task<ScheduleDto> GetScheduleFromCacheAsync(Guid id)
+        public  ScheduleDto GetScheduleFromCache(Guid id)
         {
             return Schedules.TryGetValue(id, out var schedule) ? schedule : null;
         }
@@ -64,7 +64,7 @@ namespace SchedulingModule.Application.Managers
                 .ToList();
         }
 
-        public async Task<SchedulAllDetails> GetScheduleDetailsFromCacheAsync(Guid id)
+        public SchedulAllDetails GetScheduleDetailsFromCache(Guid id)
         {
             return ScheduleDetailsMap.TryGetValue(id, out var details) ? details : null;
         }
@@ -91,12 +91,12 @@ namespace SchedulingModule.Application.Managers
             return ScheduleResourcesMap.Count;
         }
 
-        public async Task<IEnumerable<ScheduleDto>> GetAllCachedSchedulesAsync()
+        public IEnumerable<ScheduleDto> GetAllCachedSchedules()
         {
             return Schedules.Values.ToList();
         }
 
-        public async Task<IEnumerable<ScheduleResourceDto>> GetAllCachedResourcesAsync()
+        public IEnumerable<ScheduleResourceDto> GetAllCachedResources()
         {
             return ScheduleResourcesMap.Values.ToList();
         }
@@ -120,15 +120,15 @@ namespace SchedulingModule.Application.Managers
             {
                 Schedules.TryAdd(schedule.Id, schedule);
             }
-            await UpdateScheduleDetailsAsync(Schedules.Values);
+            UpdateScheduleDetails(Schedules.Values);
             await LoadScheduleResourceMapping();
             executeLoadedTasks();
         }
         
-        public  async Task<ScheduleDto> GetAsync(Guid id) =>
+        public  ScheduleDto Get(Guid id) =>
             Schedules.TryGetValue(id, out var schedule) ? schedule : null;
 
-        public async Task<SchedulAllDetails> GetDetailedAsync(Guid id)
+        public SchedulAllDetails GetDetailed(Guid id)
         {
            return  ScheduleDetailsMap.TryGetValue(id, out var schedule) ? schedule : null;
         }
@@ -155,7 +155,7 @@ namespace SchedulingModule.Application.Managers
             return true;
         }
         
-        public  async Task<IEnumerable<SchedulAllDetails>> GetScheduleWithAllDetailsAsync(
+        public  IEnumerable<SchedulAllDetails> GetScheduleWithAllDetails(
             string userName
         )
         {
@@ -163,7 +163,7 @@ namespace SchedulingModule.Application.Managers
             {
                 if (ScheduleDetailsMap.IsEmpty)
                 {
-                    await UpdateScheduleDetailsAsync(Schedules.Values);
+                    UpdateScheduleDetails(Schedules.Values);
                 }
                 return userName == "admin"
                     ? ScheduleDetailsMap.Values
@@ -176,13 +176,13 @@ namespace SchedulingModule.Application.Managers
             }
         }
 
-        public async Task<IEnumerable<ScheduleDto>> GetAllSchedulesAsync()
+        public  IEnumerable<ScheduleDto> GetAllSchedules()
         {
             try
             {
                 if (ScheduleDetailsMap.IsEmpty)
                 {
-                    await UpdateScheduleDetailsAsync(Schedules.Values);
+                     UpdateScheduleDetails(Schedules.Values);
                 }
                 return Schedules.Values;
             }
@@ -225,14 +225,13 @@ namespace SchedulingModule.Application.Managers
 
         
         
-        private  async Task UpdateScheduleDetailsAsync(IEnumerable<ScheduleDto> schedules)
+        private  void  UpdateScheduleDetails(IEnumerable<ScheduleDto> schedules)
         {
             foreach (var schedule in schedules)
             {
                 var details = new SchedulAllDetails { schedules = schedule };
                 AddOrUpdateScheduleDetails(details);
             }
-            await Task.CompletedTask;
         }
 
         private async Task LoadScheduleResourceMapping()
