@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,7 +48,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Context\" />
+    <Folder Include="Application\DTOs\" />
+    <Folder Include="Application\Enums\" />
+    <Folder Include="Application\Extensions\" />
+    <Folder Include="Application\Features\Queries\" />
+    <Folder Include="Application\Interfaces\" />
+    <Folder Include="Application\Managers\" />
+    <Folder Include="Application\Models\" />
+    <Folder Include="Application\Scheduler\" />
+    <Folder Include="Application\ScheduleStrategies\" />
+    <Folder Include="Application\Services\" />
+    <Folder Include="Domain\Entities\" />
+    <Folder Include="Domain\Enums\" />
     <Folder Include="Domain\Interfaces\" />
+    <Folder Include="Infrastructure\Repositories\" />
+    <Folder Include="Presentation\" />
   </ItemGroup>
 
 </Project>

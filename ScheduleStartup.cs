@@ -1,26 +1,14 @@
 ﻿using System.Reflection;
 using Coravel;
 using Coravel.Events.Interfaces;
-using Coravel.Scheduling.Schedule.Interfaces;
 using Hangfire;
 using Hangfire.PostgreSql;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using SchedulingModule.Application.Context;
-using SchedulingModule.Application.Interfaces;
-using SchedulingModule.Application.Managers;
-using SchedulingModule.Application.Scheduler;
-using SchedulingModule.Application.ScheduleStrategies;
-using SchedulingModule.Infrastructure.Repositories;
 using TanvirArjel.Extensions.Microsoft.DependencyInjection;
 
 namespace SchedulingModule
 {
-    public enum SchedulerType
-    {
-        Coravel,
-        Hangfire
-    }
+    
 
     public static class ScheduleStartup
     {
@@ -35,9 +23,6 @@ namespace SchedulingModule
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
             
             ConfigureScheduler(services,configuration);
-            
-            //coravel services
-         
           
             services.AddServicesOfType<IScopedService>();
             services.AddServicesWithAttributeOfType<ScopedServiceAttribute>();
